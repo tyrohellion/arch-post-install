@@ -8,7 +8,7 @@ echo "Multilib and color support have been enabled"
 
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
 
-yay -Syu base-devel steam pfetch fastfetch discord kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave
+yay -Syu base-devel steam pfetch fastfetch discord kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave mangohud
 
 grub="/etc/default/grub"
 
