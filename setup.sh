@@ -1,7 +1,17 @@
 pacman="/etc/pacman.conf"
 
 sudo sed -i 's/^#\[multilib\]/[multilib]/' "$pacman"
-sudo sed -i 's/^#Include = \/etc\/pacman.d\/mirrorlist/Include = \/etc\/pacman.d\/mirrorlist/' "$pacman"
+
+sudo awk '
+  BEGIN { in_multilib=0 }
+  /^\[multilib\]/ { in_multilib=1; print; next }
+  /^\[/ && $0 !~ /\[multilib\]/ { in_multilib=0 }
+  in_multilib && /^#Include = \/etc\/pacman.d\/mirrorlist/ {
+    print "Include = /etc/pacman.d/mirrorlist"; next
+  }
+  { print }
+' "$pacman" | sudo tee "$pacman.tmp" > /dev/null && sudo mv "$pacman.tmp" "$pacman"
+
 sudo sed -i 's/^#Color/Color/' "$pacman"
 
 echo "Multilib and color support have been enabled"
