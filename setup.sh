@@ -18,7 +18,7 @@ echo "Multilib and color support have been enabled"
 
 sudo pacman -S --needed git base-devel && git clone https://aur.archlinux.org/yay.git && cd yay && makepkg -si
 
-yay -Syu base-devel steam pfetch fastfetch discord kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave mangohud
+yay -Syu base-devel steam pfetch fastfetch discord kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave mangohud flatpak
 
 grub="/etc/default/grub"
 
@@ -33,7 +33,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfgs
 bashrc_file="$HOME/.bashrc"
 
 # Define lines to add
-alias_up='alias up="yay -Syu"'
+alias_up='alias up="yay -Syu && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
 starship_init='eval "$(starship init bash)"'
 pfetch_cmd="pfetch"
