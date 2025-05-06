@@ -21,7 +21,7 @@ tar xvf cachyos-repo.tar.xz && cd cachyos-repo
 sudo ./cachyos-repo.sh
 cd ..
 
-yay -Syu base-devel yay steam pfetch fastfetch equibop kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave mangohud flatpak
+yay -Syu proton-cachyos linux-cachyos base-devel yay steam pfetch fastfetch equibop kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave mangohud flatpak
 
 grub="/etc/default/grub"
 
