@@ -117,7 +117,7 @@ add_line "$starship_init"
 echo "=== Installing Elegant GRUB theme ==="
 git clone https://github.com/vinceliuice/Elegant-grub2-themes
 cd Elegant-grub2-themes
-sudo ./install.sh
+sudo ./install.sh -t mojave -p float -i left -c dark -s 1080p -l system
 cd ..
 rm -rf Elegant-grub2-themes
 echo "Elegant GRUB theme installed and folder removed."
