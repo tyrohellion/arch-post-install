@@ -66,7 +66,7 @@ echo "=== Installing yay ==="
 sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
 echo "=== Installing packages ==="
-yay -Syu --noconfirm \
+yay -Syu --needed --noconfirm \
   proton-cachyos linux-cachyos base-devel steam \
   pfetch fastfetch equibop kvantum \
   ttf-jetbrains-mono-nerd inter-font \
