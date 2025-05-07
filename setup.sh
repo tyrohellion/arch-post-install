@@ -1,40 +1,93 @@
-pacman="/etc/pacman.conf"
+#!/bin/bash
 
-sudo sed -i 's/^#\[multilib\]/[multilib]/' "$pacman"
+set -e
 
-sudo awk '
-  BEGIN { in_multilib=0 }
-  /^\[multilib\]/ { in_multilib=1; print; next }
-  /^\[/ && $0 !~ /\[multilib\]/ { in_multilib=0 }
-  in_multilib && /^#Include = \/etc\/pacman.d\/mirrorlist/ {
-    print "Include = /etc/pacman.d/mirrorlist"; next
-  }
-  { print }
-' "$pacman" | sudo tee "$pacman.tmp" > /dev/null && sudo mv "$pacman.tmp" "$pacman"
+pacman_conf="/etc/pacman.conf"
+grub_conf="/etc/default/grub"
+bashrc_file="$HOME/.bashrc"
 
-sudo sed -i 's/^#Color/Color/' "$pacman"
+echo "=== Enabling multilib ==="
+if grep -q "^\[multilib\]" "$pacman_conf"; then
+  echo "Multilib is already enabled."
+else
+  sudo sed -i 's/^#\[multilib\]/[multilib]/' "$pacman_conf"
+  sudo awk '
+    BEGIN { in_multilib=0 }
+    /^\[multilib\]/ { in_multilib=1; print; next }
+    /^\[/ && $0 !~ /\[multilib\]/ { in_multilib=0 }
+    in_multilib && /^#Include = \/etc\/pacman.d\/mirrorlist/ {
+      print "Include = /etc/pacman.d/mirrorlist"; next
+    }
+    { print }
+  ' "$pacman_conf" | sudo tee "$pacman_conf.tmp" > /dev/null && sudo mv "$pacman_conf.tmp" "$pacman_conf"
+  echo "Multilib enabled."
+fi
 
-echo "Multilib and color support have been enabled"
+echo "=== Enabling colored output ==="
+if grep -q "^Color" "$pacman_conf"; then
+  echo "Color is already enabled."
+else
+  sudo sed -i 's/^#Color/Color/' "$pacman_conf" && echo "Color output enabled."
+fi
 
-curl https://mirror.cachyos.org/cachyos-repo.tar.xz -o cachyos-repo.tar.xz
-tar xvf cachyos-repo.tar.xz && cd cachyos-repo
-sudo ./cachyos-repo.sh
-cd ..
+echo "=== Adding CachyOS repo ==="
+if ! grep -q "\[cachyos\]" "$pacman_conf"; then
+  curl https://mirror.cachyos.org/cachyos-repo.tar.xz -o cachyos-repo.tar.xz
+  tar xvf cachyos-repo.tar.xz && cd cachyos-repo
+  sudo ./cachyos-repo.sh
+  cd ..
+  echo "CachyOS repo added."
+else
+  echo "CachyOS repo already exists in pacman.conf."
+fi
 
-sudo pacman -Sy yay
+echo "=== Adding Cider Collective repo ==="
+if ! grep -q "\[cidercollective\]" "$pacman_conf"; then
+  if ! pacman-key --list-keys | grep -q "A0CD6B993438E22634450CDD2A236C3F42A61682"; then
+    curl -s https://repo.cider.sh/ARCH-GPG-KEY | sudo pacman-key --add -
+    sudo pacman-key --lsign-key A0CD6B993438E22634450CDD2A236C3F42A61682
+  else
+    echo "Cider GPG key already added."
+  fi
 
-yay -Syu proton-cachyos linux-cachyos base-devel steam pfetch fastfetch equibop kvantum proton-ge-custom-bin os-prober starship firefox kdenlive gimp krita inkscape papirus-icon-theme plasma6-themes-chromeos-kde-git chromeos-gtk-theme-git konsave mangohud flatpak
+  sudo tee -a "$pacman_conf" << 'EOF'
 
-grub="/etc/default/grub"
+# Cider Collective Repository
+[cidercollective]
+SigLevel = Required TrustedOnly
+Server = https://repo.cider.sh/arch
+EOF
+  echo "Cider Collective repo added."
+else
+  echo "Cider Collective repo already exists in pacman.conf."
+fi
 
-sudo sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' "$grub"
+echo "=== Installing yay ==="
+sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
-echo "GRUB_DISABLE_OS_PROBER has been enabled in /etc/default/grub"
+echo "=== Installing packages ==="
+yay -Syu --noconfirm \
+  proton-cachyos linux-cachyos base-devel steam \
+  pfetch fastfetch equibop kvantum \
+  ttf-jetbrains-mono-nerd inter-font \
+  proton-ge-custom-bin os-prober starship \
+  firefox kdenlive gimp krita inkscape \
+  papirus-icon-theme plasma6-themes-chromeos-kde-git \
+  chromeos-gtk-theme-git konsave mangohud flatpak || {
+    echo "Some packages failed to install"; exit 1;
+}
+
+echo "=== Enabling OS prober for GRUB ==="
+if grep -q "^#GRUB_DISABLE_OS_PROBER=false" "$grub_conf"; then
+  sudo sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' "$grub_conf"
+  echo "GRUB_DISABLE_OS_PROBER enabled."
+else
+  echo "GRUB_DISABLE_OS_PROBER already enabled or manually set."
+fi
 
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
-bashrc_file="$HOME/.bashrc"
-
+echo "=== Customizing .bashrc ==="
 alias_up='alias up="yay -Syu && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
 starship_init='eval "$(starship init bash)"'
@@ -61,6 +114,12 @@ add_line "$alias_up"
 add_line "$alias_update_grub"
 add_line "$starship_init"
 
+echo "=== Installing Elegant GRUB theme ==="
 git clone https://github.com/vinceliuice/Elegant-grub2-themes
 cd Elegant-grub2-themes
 sudo ./install.sh
+cd ..
+rm -rf Elegant-grub2-themes
+echo "Elegant GRUB theme installed and folder removed."
+
+echo "=== All done. Reboot recommended. ==="
