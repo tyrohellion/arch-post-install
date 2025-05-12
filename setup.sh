@@ -68,10 +68,10 @@ sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
   proton-cachyos linux-cachyos base-devel steam \
-  pfetch fastfetch equibop kvantum \
+  pfetch fastfetch vesktop-bin kvantum \
   ttf-jetbrains-mono-nerd inter-font \
   proton-ge-custom-bin os-prober starship \
-  firefox kdenlive gimp krita inkscape \
+  firefox kdenlive gimp krita inkscape git \
   papirus-icon-theme plasma6-themes-chromeos-kde-git \
   chromeos-gtk-theme-git konsave mangohud flatpak || {
     echo "Some packages failed to install"; exit 1;
@@ -114,10 +114,50 @@ add_line "$alias_up"
 add_line "$alias_update_grub"
 add_line "$starship_init"
 
+echo "=== Adding environment variables to /etc/environment ==="
+
+env_file="/etc/environment"
+
+add_env_var() {
+  local key="$1"
+  local value="$2"
+  if grep -q "^${key}=" "$env_file"; then
+    echo "$key already set in /etc/environment."
+  else
+    echo "$key=\"$value\"" | sudo tee -a "$env_file" > /dev/null
+    echo "Added: $key=\"$value\""
+  fi
+}
+
+add_env_var "MOZ_ENABLE_WAYLAND" "1"
+add_env_var "MANGOHUD" "1"
+add_env_var "MANGOHUD_CONFIG" "cellpadding_y=0.2, wine, font_size=20, no_display, winesync"
+
+echo "=== Applying Firefox customizations ==="
+
+git clone https://github.com/tyrohellion/arcadia
+cd arcadia
+
+firefox_dir="$HOME/.mozilla/firefox"
+profile_path=$(find "$firefox_dir" -maxdepth 1 -type d -name "*default-release" | head -n 1)
+
+if [[ -d "$profile_path" ]]; then
+  echo "Firefox profile found: $profile_path"
+
+  cp -r chrome "$profile_path/"
+  cp user.js "$profile_path/"
+  echo "Custom Firefox files copied to profile."
+else
+  echo "Firefox default-release profile not found. Skipping customization."
+fi
+
+cd ..
+rm -rf arcadia
+
 echo "=== Installing Elegant GRUB theme ==="
 git clone https://github.com/vinceliuice/Elegant-grub2-themes
 cd Elegant-grub2-themes
-sudo ./install.sh -t mojave -p float -i left -c dark -s 1080p -l system
+sudo ./install.sh -t forest -p float -i left -c dark -s 1080p -l system
 cd ..
 rm -rf Elegant-grub2-themes
 echo "Elegant GRUB theme installed and folder removed."
