@@ -131,7 +131,7 @@ add_env_var() {
 
 add_env_var "MOZ_ENABLE_WAYLAND" "1"
 add_env_var "MANGOHUD" "1"
-add_env_var "MANGOHUD_CONFIG" "cellpadding_y=0.2, wine, font_size=20, no_display, winesync"
+add_env_var "MANGOHUD_CONFIG=cellpadding_y=0.1, proc_vram, wine, font_size=20, no_display, winesync, vsync=1, gl_vsync=0"
 
 echo "=== Applying Firefox customizations ==="
 
