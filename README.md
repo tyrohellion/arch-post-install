@@ -3,7 +3,7 @@
 1. `git clone https://github.com/tyrohellion/arch-post-install`
 2. `cd arch-post-install`
 3. `chmod +x setup.sh`
-4. `sudo ./setup.sh`
+4. `./setup.sh`
 
 ## Why?
 
