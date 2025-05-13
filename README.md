@@ -1,19 +1,19 @@
 ## Installation
 
-1. Enter `git clone https://github.com/tyrohellion/arch-post-install`
-2. Enter `cd arch-post-install`
-3. Enter `chmod +x setup.sh`
-4. Enter `sudo ./setup.sh`
+1. `git clone https://github.com/tyrohellion/arch-post-install`
+2. `cd arch-post-install`
+3. `chmod +x setup.sh`
+4. `sudo ./setup.sh`
 
 ## Why?
 
-To automate my personal arch linux install whenver I need to
+To automate my personal Arch Linux install whenever I need to
 
 ## Summary of changes
 
 1. Enables multilib and Color in /etc/pacman.conf
 2. Adds the CachyOS repositories
-3. Adds the Cider Collective repo
+3. Adds the Cider Collective repository
 4. Installs yay alongside all packages I use
 5. Applies my personal konsave profile
 6. Enables os-prober for dual booting with my Windows drive
