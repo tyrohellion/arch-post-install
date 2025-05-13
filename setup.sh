@@ -77,6 +77,17 @@ yay -Syu --needed --noconfirm \
     echo "Some packages failed to install"; exit 1;
 }
 
+echo "=== Applying konsave profile ==="
+knsv_file="arch.knsv"
+
+if [[ -f "$knsv_file" ]]; then
+  konsave -i "$knsv_file"
+  konsave -a arch
+  echo "Konsave profile 'arch' imported and applied."
+else
+  echo "Konsave file '$knsv_file' not found in current directory. Skipping konsave apply."
+fi
+
 echo "=== Enabling OS prober for GRUB ==="
 if grep -q "^#GRUB_DISABLE_OS_PROBER=false" "$grub_conf"; then
   sudo sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' "$grub_conf"
