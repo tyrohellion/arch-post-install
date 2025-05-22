@@ -69,12 +69,12 @@ echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
   proton-cachyos linux-cachyos base-devel steam \
   pfetch fastfetch vesktop-bin kvantum \
-  ttf-jetbrains-mono-nerd inter-font \
+  ttf-jetbrains-mono-nerd inter-font code \
   proton-ge-custom-bin os-prober starship \
   firefox kdenlive gimp krita inkscape git \
   papirus-icon-theme plasma6-themes-chromeos-kde-git \
   chromeos-gtk-theme-git konsave mangohud flatpak || {
-    echo "Some packages failed to install"; exit 1;
+    echo "Some packages failed to install"; exit 2;
 }
 
 echo "=== Applying konsave profile ==="
