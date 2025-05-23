@@ -68,7 +68,7 @@ sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
   proton-cachyos linux-cachyos base-devel steam \
-  pfetch fastfetch kvantum discord \
+  pfetch fastfetch kvantum discord cider \
   ttf-jetbrains-mono-nerd inter-font code \
   proton-ge-custom-bin os-prober starship \
   firefox kdenlive gimp krita inkscape git \
