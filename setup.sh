@@ -69,7 +69,7 @@ echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
   proton-cachyos linux-cachyos base-devel steam \
   pfetch fastfetch kvantum discord cider dunst \
-  ttf-jetbrains-mono-nerd inter-font code vlc \
+  ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
   proton-ge-custom-bin os-prober starship audacious \
   firefox kdenlive gimp krita inkscape git bottles \
   papirus-icon-theme plasma6-themes-chromeos-kde-git \
