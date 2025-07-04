@@ -124,6 +124,7 @@ add_line() {
 
 add_line "$alias_up"
 add_line "$alias_update_grub"
+add_line "$alias_xwayland_list"
 add_line "$starship_init"
 
 echo "=== Adding environment variables to /etc/environment ==="
