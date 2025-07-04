@@ -70,8 +70,8 @@ yay -Syu --needed --noconfirm \
   protonup-qt linux-cachyos base-devel steam \
   pfetch fastfetch kvantum discord cider dunst micro \
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
-  os-prober starship audacious proton-cachyos proton-ge-custom-bin\
-  firefox kdenlive gimp krita inkscape git bottles \
+  os-prober starship audacious proton-cachyos proton-ge-custom-bin \
+  firefox kdenlive gimp krita inkscape git bottles xlsclients \
   papirus-icon-theme plasma6-themes-chromeos-kde-git \
   chromeos-gtk-theme-git konsave mangohud flatpak || {
     echo "Some packages failed to install"; exit 2;
@@ -101,6 +101,7 @@ sudo grub-mkconfig -o /boot/grub/grub.cfg
 echo "=== Customizing .bashrc ==="
 alias_up='alias up="yay -Syu && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
+alias_xwayland_list='xlsclients -l"'
 starship_init='eval "$(starship init bash)"'
 pfetch_cmd="pfetch"
 
