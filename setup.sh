@@ -41,34 +41,13 @@ else
   echo "CachyOS repo already exists in pacman.conf."
 fi
 
-echo "=== Adding Cider Collective repo ==="
-if ! grep -q "\[cidercollective\]" "$pacman_conf"; then
-  if ! pacman-key --list-keys | grep -q "A0CD6B993438E22634450CDD2A236C3F42A61682"; then
-    curl -s https://repo.cider.sh/ARCH-GPG-KEY | sudo pacman-key --add -
-    sudo pacman-key --lsign-key A0CD6B993438E22634450CDD2A236C3F42A61682
-  else
-    echo "Cider GPG key already added."
-  fi
-
-  sudo tee -a "$pacman_conf" << 'EOF'
-
-# Cider Collective Repository
-[cidercollective]
-SigLevel = Required TrustedOnly
-Server = https://repo.cider.sh/arch
-EOF
-  echo "Cider Collective repo added."
-else
-  echo "Cider Collective repo already exists in pacman.conf."
-fi
-
 echo "=== Installing yay ==="
 sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
 echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
   protonup-qt linux-cachyos base-devel steam \
-  pfetch fastfetch kvantum discord cider dunst micro \
+  pfetch fastfetch kvantum discord dunst micro \
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
   os-prober starship audacious proton-cachyos proton-ge-custom-bin \
   firefox kdenlive gimp krita inkscape git bottles xlsclients \
@@ -96,12 +75,25 @@ else
   echo "GRUB_DISABLE_OS_PROBER already enabled or manually set."
 fi
 
+echo "=== Setting GRUB_CMDLINE_LINUX_DEFAULT ==="
+desired_cmdline="GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
+
+if grep -q "^GRUB_CMDLINE_LINUX_DEFAULT=" "$grub_conf"; then
+  sudo sed -i "s/^GRUB_CMDLINE_LINUX_DEFAULT=.*/$desired_cmdline/" "$grub_conf"
+  echo "Updated GRUB_CMDLINE_LINUX_DEFAULT."
+else
+  echo "$desired_cmdline" | sudo tee -a "$grub_conf" > /dev/null
+  echo "Added GRUB_CMDLINE_LINUX_DEFAULT to $grub_conf."
+fi
+
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "=== Customizing .bashrc ==="
 alias_up='alias up="yay -Syu && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
-alias_xwayland_list='xlsclients -l"'
+alias_xwayland_list='alias xwayland-list="xlsclients -l"'
+alias_polling_rate='alias polling="gamepadla-polling"'
+alias_rl_launch='alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 %command%"'
 starship_init='eval "$(starship init bash)"'
 pfetch_cmd="pfetch"
 
@@ -125,6 +117,8 @@ add_line() {
 add_line "$alias_up"
 add_line "$alias_update_grub"
 add_line "$alias_xwayland_list"
+add_line "$alias_polling_rate"
+add_line "$alias_rl_launch"
 add_line "$starship_init"
 
 echo "=== Adding environment variables to /etc/environment ==="
