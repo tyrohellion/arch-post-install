@@ -46,15 +46,42 @@ sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
 echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
-  protonup-qt linux-cachyos base-devel steam \
-  pfetch fastfetch kvantum discord dunst micro \
+  protonup-qt linux-cachyos base-devel steam modrinth-app-bin\
+  pfetch fastfetch kvantum discord dunst micro protonplus\
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
   os-prober starship audacious proton-cachyos proton-ge-custom-bin \
   firefox kdenlive gimp krita inkscape git bottles xlsclients \
-  papirus-icon-theme plasma6-themes-chromeos-kde-git \
+  papirus-icon-theme plasma6-themes-chromeos-kde-git gamepadla-polling\
   chromeos-gtk-theme-git konsave mangohud flatpak || {
     echo "Some packages failed to install"; exit 2;
 }
+
+echo "=== Installing Stremio (Flatpak Beta) ==="
+
+install_stremio_flatpak_beta() {
+  local stremio_id="com.stremio.Stremio"
+  local remote_name="flathub-beta"
+
+  # Check if the beta version from flathub-beta is already installed
+  if flatpak list --app --columns=application,remote | grep -q "^$stremio_id\s\+$remote_name$"; then
+    echo "Stremio (beta) is already installed via Flathub Beta."
+  else
+    echo "Stremio (beta) not found. Installing from Flathub Beta..."
+
+    # Add the beta repo if not already added
+    flatpak remote-add --if-not-exists "$remote_name" https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+
+    # Update appstream data
+    flatpak update --appstream
+
+    # Install Stremio from flathub-beta
+    flatpak install -y "$remote_name" "$stremio_id" && echo "Stremio (beta) installed." || {
+      echo "Failed to install Stremio (beta)."; return 1;
+    }
+  fi
+}
+
+install_stremio_flatpak_beta
 
 echo "=== Applying konsave profile ==="
 knsv_file="arch.knsv"
