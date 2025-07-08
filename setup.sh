@@ -41,6 +41,27 @@ else
   echo "CachyOS repo already exists in pacman.conf."
 fi
 
+
+echo "=== Adding Cider Collective repo ==="
+if ! grep -q "\[cidercollective\]" "$pacman_conf"; then
+  if ! pacman-key --list-keys | grep -q "A0CD6B993438E22634450CDD2A236C3F42A61682"; then
+    curl -s https://repo.cider.sh/ARCH-GPG-KEY | sudo pacman-key --add -
+    sudo pacman-key --lsign-key A0CD6B993438E22634450CDD2A236C3F42A61682
+  else
+    echo "Cider GPG key already added."
+  fi
+  sudo tee -a "$pacman_conf" << 'EOF'
+  
+# Cider Collective Repository
+[cidercollective]
+SigLevel = Required TrustedOnly
+Server = https://repo.cider.sh/arch
+EOF
+  echo "Cider Collective repo added."
+else
+  echo "Cider Collective repo already exists in pacman.conf."
+fi
+
 echo "=== Installing yay ==="
 sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
