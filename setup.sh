@@ -73,7 +73,7 @@ yay -Syu --needed --noconfirm \
   os-prober starship audacious proton-cachyos proton-ge-custom-bin \
   firefox kdenlive gimp krita inkscape git bottles xlsclients \
   papirus-icon-theme plasma6-themes-chromeos-kde-git gamepadla-polling\
-  chromeos-gtk-theme-git konsave mangohud flatpak || {
+  chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider || {
     echo "Some packages failed to install"; exit 2;
 }
 
