@@ -163,7 +163,6 @@ add_env_var() {
   fi
 }
 
-add_env_var "MOZ_ENABLE_WAYLAND" "1"
 add_env_var "MANGOHUD" "1"
 add_env_var "MANGOHUD_CONFIG" "cellpadding_y=0.1, wine, font_size=20, no_display, winesync, display_server, vsync=1, gl_vsync=0"
 add_env_var "ELECTRON_OZONE_PLATFORM_HINT" "auto"
