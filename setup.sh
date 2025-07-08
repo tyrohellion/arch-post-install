@@ -120,7 +120,7 @@ alias_up='alias up="yay -Syu && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
 alias_xwayland_list='alias xwayland-list="xlsclients -l"'
 alias_polling_rate='alias polling="gamepadla-polling"'
-alias_rl_launch='alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 %command%"'
+alias_rl_launch='alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 WAYLANDDRV_PRIMARY_MONITOR=DP-1 %command%"'
 starship_init='eval "$(starship init bash)"'
 pfetch_cmd="pfetch"
 
