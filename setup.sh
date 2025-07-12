@@ -67,15 +67,18 @@ sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
 echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
-  protonup-qt linux-cachyos base-devel steam modrinth-app-bin\
-  pfetch fastfetch kvantum discord dunst micro protonplus\
+  linux-cachyos base-devel steam modrinth-app-bin \
+  pfetch fastfetch kvantum discord dunst micro protonup-rs \
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
-  os-prober starship audacious proton-cachyos proton-ge-custom-bin \
+  os-prober starship audacious proton-cachyos \
   firefox kdenlive gimp krita inkscape git bottles xorg-xlsclients \
-  papirus-icon-theme plasma6-themes-chromeos-kde-git gamepadla-polling\
+  papirus-icon-theme plasma6-themes-chromeos-kde-git gamepadla-polling \
   chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider || {
     echo "Some packages failed to install"; exit 2;
 }
+
+echo "=== Please install proton-ge ==="
+protonup-rs
 
 echo "=== Installing Stremio (Flatpak Beta) ==="
 
@@ -137,11 +140,18 @@ fi
 sudo grub-mkconfig -o /boot/grub/grub.cfg
 
 echo "=== Customizing .bashrc ==="
-alias_up='alias up="yay -Syu && flatpak update"'
+alias_up='alias up="yay -Syu && protonup-rs -q && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
 alias_xwayland_list='alias xwayland-list="xlsclients -l"'
 alias_polling_rate='alias polling="gamepadla-polling"'
 alias_rl_launch='alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 WAYLANDDRV_PRIMARY_MONITOR=DP-1 %command%"'
+alias_bakkesmod_refresh='alias bakkes-update="
+if pacman -Qs bakkesmod-steam > /dev/null; then
+  yay -Rns bakkesmod-steam && yay -S bakkesmod-steam --rebuild --noconfirm
+else
+  yay -S bakkesmod-steam --rebuild --noconfirm
+fi
+"'
 starship_init='eval "$(starship init bash)"'
 pfetch_cmd="pfetch"
 
@@ -167,6 +177,7 @@ add_line "$alias_update_grub"
 add_line "$alias_xwayland_list"
 add_line "$alias_polling_rate"
 add_line "$alias_rl_launch"
+add_line "$alias_bakkesmod_refresh"
 add_line "$starship_init"
 
 echo "=== Adding environment variables to /etc/environment ==="
