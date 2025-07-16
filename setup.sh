@@ -70,7 +70,7 @@ yay -Syu --needed --noconfirm \
   linux-cachyos base-devel steam modrinth-app-bin \
   pfetch fastfetch kvantum discord dunst micro protonup-rs \
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
-  os-prober starship audacious proton-cachyos \
+  os-prober starship audacious proton-cachyos mpv-amd-full-git \
   firefox kdenlive gimp krita inkscape git bottles xorg-xlsclients \
   papirus-icon-theme plasma6-themes-chromeos-kde-git gamepadla-polling \
   chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider || {
