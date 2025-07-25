@@ -70,7 +70,7 @@ yay -Syu --needed --noconfirm \
   linux-cachyos base-devel steam modrinth-app-bin \
   pfetch fastfetch kvantum discord dunst micro protonup-rs \
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
-  os-prober starship audacious proton-cachyos \
+  os-prober starship audacious proton-cachyos stremio-linux-shell-git \
   firefox kdenlive gimp krita inkscape git bottles xorg-xlsclients \
   papirus-icon-theme plasma6-themes-chromeos-kde-git gamepadla-polling \
   chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider || {
@@ -79,33 +79,6 @@ yay -Syu --needed --noconfirm \
 
 echo "=== Please install proton-ge ==="
 protonup-rs
-
-echo "=== Installing Stremio (Flatpak Beta) ==="
-
-install_stremio_flatpak_beta() {
-  local stremio_id="com.stremio.Stremio"
-  local remote_name="flathub-beta"
-
-  # Check if the beta version from flathub-beta is already installed
-  if flatpak list --app --columns=application,remote | grep -q "^$stremio_id\s\+$remote_name$"; then
-    echo "Stremio (beta) is already installed via Flathub Beta."
-  else
-    echo "Stremio (beta) not found. Installing from Flathub Beta..."
-
-    # Add the beta repo if not already added
-    flatpak remote-add --if-not-exists "$remote_name" https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-
-    # Update appstream data
-    flatpak update --appstream
-
-    # Install Stremio from flathub-beta
-    flatpak install -y "$remote_name" "$stremio_id" && echo "Stremio (beta) installed." || {
-      echo "Failed to install Stremio (beta)."; return 1;
-    }
-  fi
-}
-
-install_stremio_flatpak_beta
 
 echo "=== Applying konsave profile ==="
 knsv_file="arch.knsv"
@@ -198,6 +171,8 @@ add_env_var() {
 add_env_var "MANGOHUD" "1"
 add_env_var "MANGOHUD_CONFIG" "cellpadding_y=0.1, wine, font_size=20, no_display, winesync, display_server, vsync=1, gl_vsync=0"
 add_env_var "ELECTRON_OZONE_PLATFORM_HINT" "auto"
+add_env_var "VKD3D_FRAME_RATE" "237"
+add_env_var "DXVK_FRAME_RATE" "237"
 
 echo "=== Applying Firefox customizations ==="
 
