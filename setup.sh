@@ -67,7 +67,7 @@ sudo pacman -Sy --noconfirm yay || { echo "Failed to install yay"; exit 1; }
 
 echo "=== Installing packages ==="
 yay -Syu --needed --noconfirm \
-  linux-cachyos base-devel steam modrinth-app-bin \
+  linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git \
   pfetch fastfetch kvantum discord dunst micro protonup-rs \
   ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin \
   os-prober starship audacious proton-cachyos stremio-linux-shell-git \
