@@ -77,7 +77,14 @@ yay -Syu --needed --noconfirm \
     echo "Some packages failed to install"; exit 2;
 }
 
-echo "=== Please install proton-ge ==="
+echo "=== Installing GPU Screen Recorder ==="
+if flatpak list | grep -q "com.dec05eba.gpu_screen_recorder"; then
+    echo "GPU Screen Recorder is already installed."
+else
+    flatpak install -y flathub com.dec05eba.gpu_screen_recorder
+fi
+
+echo "=== Please install proton-ge locally for bakkesmod to work ==="
 protonup-rs
 
 echo "=== Applying konsave profile ==="
@@ -117,7 +124,8 @@ alias_up='alias up="yay -Syu && protonup-rs -q && flatpak update"'
 alias_update_grub='alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
 alias_xwayland_list='alias xwayland-list="xlsclients -l"'
 alias_polling_rate='alias polling="gamepadla-polling"'
-alias_rl_launch='alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 WAYLANDDRV_PRIMARY_MONITOR=DP-1 %command%"'
+alias_rl_launch='alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 %command%"'
+alias_yay_recent='alias yay-recent="grep -i "installed" /var/log/pacman.log | tail -n 30"'
 alias_bakkesmod_refresh='alias bakkes-update="
 if pacman -Qs bakkesmod-steam > /dev/null; then
   yay -Rns bakkesmod-steam && yay -S bakkesmod-steam --rebuild --noconfirm
@@ -150,11 +158,11 @@ add_line "$alias_update_grub"
 add_line "$alias_xwayland_list"
 add_line "$alias_polling_rate"
 add_line "$alias_rl_launch"
+add_line "$alias_yay_recent"
 add_line "$alias_bakkesmod_refresh"
 add_line "$starship_init"
 
 echo "=== Adding environment variables to /etc/environment ==="
-
 env_file="/etc/environment"
 
 add_env_var() {
@@ -175,7 +183,6 @@ add_env_var "VKD3D_FRAME_RATE" "237"
 add_env_var "DXVK_FRAME_RATE" "237"
 
 echo "=== Applying Firefox customizations ==="
-
 git clone https://github.com/tyrohellion/arcadia
 cd arcadia
 
