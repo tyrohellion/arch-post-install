@@ -19,5 +19,6 @@ To automate my personal Arch Linux install whenever I need to
 6. Enables os-prober for dual booting with my Windows drive
 7. Adds my .bashrc configs and configures starship
 8. Adds my personal env variables to /etc/environment
-9. Fetches and applies my own firefox theme and user.js
-10. Installs grub theme (https://github.com/vinceliuice/Elegant-grub2-themes)
+9. Adds my mangohud config file
+10. Fetches and applies my own firefox theme and user.js
+11. Installs grub theme (https://github.com/vinceliuice/Elegant-grub2-themes)
