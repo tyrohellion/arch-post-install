@@ -126,7 +126,7 @@ install_yay() {
 install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git protonplus
-    pfetch fastfetch kvantum discord dunst micro protonup-rs vesktop-bin mangojuice
+    pfetch fastfetch kvantum dunst protonup-rs vesktop-bin mangojuice ffmpeg volt-gui mangojuice
     ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin lib32-gamemode gamemode
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita inkscape
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git
@@ -141,14 +141,21 @@ install_packages() {
   success "All packages installed."
 }
 
-# === Install GPU Screen Recorder flatpak ===
-install_gpu_recorder() {
-  local flatpak_id="com.dec05eba.gpu_screen_recorder"
-  if flatpak list | grep -q "$flatpak_id"; then
-    success "GPU Screen Recorder already installed."
-  else
-    run_with_spinner "Installing GPU Screen Recorder (flatpak)" flatpak install -y flathub "$flatpak_id"
-  fi
+# === Install Flatpaks ===
+install_flatpaks() {
+  local flatpaks=(
+    "com.dec05eba.gpu_screen_recorder"
+    "com.discordapp.Discord"
+    "io.github.celluloid_player.Celluloid"
+  )
+
+  for flatpak_id in "${flatpaks[@]}"; do
+    if flatpak list --app | grep -q "^$flatpak_id"; then
+      success "$flatpak_id already installed."
+    else
+      run_with_spinner "Installing $flatpak_id (flatpak)" flatpak install -y flathub "$flatpak_id"
+    fi
+  done
 }
 
 # === Apply konsave profile ===
@@ -174,7 +181,7 @@ enable_os_prober() {
 
 # === Set GRUB_CMDLINE_LINUX_DEFAULT ===
 set_grub_cmdline() {
-  local desired="GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
+  local desired="GRUB_CMDLINE_LINUX_DEFAULT='nvme_load=YES zswap.enabled=0 loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
 
   if grep -q "^GRUB_CMDLINE_LINUX_DEFAULT=" "$grub_conf"; then
     run_with_spinner "Updating GRUB_CMDLINE_LINUX_DEFAULT" sudo sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|$desired|" "$grub_conf"
@@ -204,7 +211,7 @@ customize_bashrc() {
   add_line 'alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
   add_line 'alias xwayland-list="xlsclients -l"'
   add_line 'alias polling="gamepadla-polling"'
-  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud gamemoderun %command%"'
+  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 DXVK_FRAME_RATE=237 mangohud gamemoderun %command%"'
   add_line 'alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"'
   add_line 'alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -S bakkesmod-steam --rebuild --noconfirm; else yay -S bakkesmod-steam --rebuild --noconfirm; fi"'
   add_line 'eval "$(starship init bash)"'

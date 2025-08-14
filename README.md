@@ -16,9 +16,9 @@ To automate my personal Arch Linux install whenever I need to
 3. Adds the Cider Collective repository
 4. Installs yay alongside all packages I use
 5. Applies my personal konsave profile
-6. Enables os-prober for dual booting with my Windows drive
-7. Adds my .bashrc configs and configures starship
-8. Adds my personal env variables to /etc/environment
-9. Adds my mangohud config file
+6. Enables os-prober and kernel parameters
+7. Applies my .bashrc configs and configures starship
+8. Applies my personal env variables to /etc/environment
+9. Applies my mangohud config file
 10. Fetches and applies my own firefox theme and user.js
 11. Installs grub theme (https://github.com/vinceliuice/Elegant-grub2-themes)
