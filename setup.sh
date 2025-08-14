@@ -394,7 +394,7 @@ main() {
   add_cider_repo
   install_yay
   install_packages
-  install_gpu_recorder
+  install_flatpaks
   apply_konsave
   enable_os_prober
   set_grub_cmdline
