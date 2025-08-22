@@ -126,9 +126,9 @@ install_yay() {
 install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git protonplus
-    pfetch fastfetch kvantum dunst protonup-rs vesktop-bin mangojuice ffmpeg volt-gui mangojuice
-    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin lib32-gamemode gamemode
-    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita inkscape
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui
+    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape
+    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider
   )
@@ -146,6 +146,7 @@ install_flatpaks() {
   local flatpaks=(
     "com.dec05eba.gpu_screen_recorder"
     "com.discordapp.Discord"
+    "dev.vencord.Vesktop"
     "io.github.celluloid_player.Celluloid"
   )
 
@@ -211,7 +212,7 @@ customize_bashrc() {
   add_line 'alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
   add_line 'alias xwayland-list="xlsclients -l"'
   add_line 'alias polling="gamepadla-polling"'
-  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 DXVK_FRAME_RATE=237 mangohud gamemoderun %command%"'
+  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 DXVK_FRAME_RATE=237 mangohud %command%"'
   add_line 'alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"'
   add_line 'alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -S bakkesmod-steam --rebuild --noconfirm; else yay -S bakkesmod-steam --rebuild --noconfirm; fi"'
   add_line 'eval "$(starship init bash)"'
@@ -299,54 +300,6 @@ EOF
   success "MangoHud config written to $HOME/.config/MangoHud/MangoHud.conf"
 }
 
-# === Configure Gamemode ===
-configure_gamemode() {
-  info "Configuring Gamemode..."
-
-  # Add user to gamemode group
-  if groups "$USER" | grep -qw "gamemode"; then
-    success "User $USER is already in gamemode group."
-  else
-    run_with_spinner "Adding $USER to gamemode group" sudo usermod -aG gamemode "$USER"
-  fi
-
-  # Enable and start gamemoded service
-  if systemctl --user is-enabled gamemoded.service &>/dev/null; then
-    success "Gamemoded service already enabled."
-  else
-    run_with_spinner "Enabling gamemoded service for user" systemctl --user enable --now gamemoded.service
-  fi
-
-  # Create config
-  local config_path="$HOME/.config/gamemode.ini"
-  mkdir -p "$HOME/.config"
-  cat > "$config_path" <<'EOF'
-[general]
-reaper_freq=5
-desiredgov=performance
-desiredprof=performance
-igpu_desiredgov=powersave
-igpu_power_threshold=0.3
-softrealtime=off
-renice=0
-ioprio=0
-inhibit_screensaver=1
-disable_splitlock=1
-
-[filter]
-
-[gpu]
-amd_performance_level=high
-
-[cpu]
-
-[supervisor]
-
-[custom]
-EOF
-  success "Gamemode config written to $config_path"
-}
-
 # === Firefox customization ===
 customize_firefox() {
   local repo_dir="arcadia"
@@ -401,7 +354,6 @@ main() {
   customize_bashrc
   add_environment_vars
   setup_mangohud_config
-  configure_gamemode
   customize_firefox
   install_grub_theme
 
