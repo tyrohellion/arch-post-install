@@ -126,10 +126,10 @@ install_yay() {
 install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git protonplus
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui
-    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape
-    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita
-    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin
+    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape bazaar vesktop-bin
+    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
+    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider
   )
 
@@ -145,8 +145,6 @@ install_packages() {
 install_flatpaks() {
   local flatpaks=(
     "com.dec05eba.gpu_screen_recorder"
-    "com.discordapp.Discord"
-    "dev.vencord.Vesktop"
     "io.github.celluloid_player.Celluloid"
   )
 
