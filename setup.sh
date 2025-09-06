@@ -126,8 +126,8 @@ install_yay() {
 install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git protonplus okular
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin switcheroo
-    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape bazaar vesktop-bin
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin
+    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape bazaar equibop-bin
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord kcolorchooser
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider
