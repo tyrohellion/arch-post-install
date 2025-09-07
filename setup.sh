@@ -146,6 +146,7 @@ install_flatpaks() {
   local flatpaks=(
     "com.dec05eba.gpu_screen_recorder"
     "io.github.celluloid_player.Celluloid"
+    "io.gitlab.adhami3310.Converter"
   )
 
   for flatpak_id in "${flatpaks[@]}"; do
