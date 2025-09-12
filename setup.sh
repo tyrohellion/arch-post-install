@@ -125,9 +125,9 @@ install_yay() {
 # === Install packages ===
 install_packages() {
   local packages=(
-    linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git protonplus okular
+    linux-cachyos base-devel steam modrinth-app-bin protonplus okular
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin
-    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape bazaar kcolorchooser
+    ttf-jetbrains-mono-nerd inter-font code github-desktop-bin inkscape bazaar kcolorchooser
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider
@@ -147,13 +147,20 @@ install_flatpaks() {
     "com.dec05eba.gpu_screen_recorder"
     "io.github.celluloid_player.Celluloid"
     "io.gitlab.adhami3310.Converter"
-    "com.github.junrrein.PDFSlicer"
     "io.github.nokse22.asciidraw"
     "io.gitlab.news_flash.NewsFlash"
     "fr.handbrake.ghb"
     "io.github.equicord.equibop"
   )
 
+  # Add flathub-beta remote if it doesn't exist
+  if ! flatpak remote-list | grep -q "^flathub-beta"; then
+    run_with_spinner "Adding flathub-beta remote" flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+  else
+    success "flathub-beta remote already exists."
+  fi
+
+  # Install regular flathub flatpaks
   for flatpak_id in "${flatpaks[@]}"; do
     if flatpak list --app | grep -q "^$flatpak_id"; then
       success "$flatpak_id already installed."
@@ -161,6 +168,14 @@ install_flatpaks() {
       run_with_spinner "Installing $flatpak_id (flatpak)" flatpak install -y flathub "$flatpak_id"
     fi
   done
+
+  # Handle the beta app: com.stremio.Stremio
+  local stremio_id="com.stremio.Stremio"
+  if flatpak list --app | grep -q "^$stremio_id"; then
+    success "$stremio_id already installed."
+  else
+    run_with_spinner "Installing $stremio_id (flathub-beta)" flatpak install -y flathub-beta "$stremio_id"
+  fi
 }
 
 # === Apply konsave profile ===
@@ -216,7 +231,7 @@ customize_bashrc() {
   add_line 'alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
   add_line 'alias xwayland-list="xlsclients -l"'
   add_line 'alias polling="gamepadla-polling"'
-  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 DXVK_FRAME_RATE=237 mangohud %command%"'
+  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"'
   add_line 'alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"'
   add_line 'alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -S bakkesmod-steam --rebuild --noconfirm; else yay -S bakkesmod-steam --rebuild --noconfirm; fi"'
   add_line 'eval "$(starship init bash)"'
