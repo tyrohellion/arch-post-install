@@ -127,8 +127,8 @@ install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin stremio-linux-shell-git protonplus okular
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin
-    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape bazaar equibop-bin
-    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord kcolorchooser
+    ttf-jetbrains-mono-nerd inter-font code vlc github-desktop-bin inkscape bazaar kcolorchooser
+    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider
   )
@@ -147,6 +147,11 @@ install_flatpaks() {
     "com.dec05eba.gpu_screen_recorder"
     "io.github.celluloid_player.Celluloid"
     "io.gitlab.adhami3310.Converter"
+    "com.github.junrrein.PDFSlicer"
+    "io.github.nokse22.asciidraw"
+    "io.gitlab.news_flash.NewsFlash"
+    "fr.handbrake.ghb"
+    "io.github.equicord.equibop"
   )
 
   for flatpak_id in "${flatpaks[@]}"; do
