@@ -86,33 +86,6 @@ add_cachyos_repo() {
   fi
 }
 
-# === Add Cider Collective repo ===
-add_cider_repo() {
-  if grep -q "\[cidercollective\]" "$pacman_conf"; then
-    success "Cider Collective repo already exists."
-  else
-    # Add GPG key if missing
-    if ! pacman-key --list-keys | grep -q "A0CD6B993438E22634450CDD2A236C3F42A61682"; then
-      info "Adding Cider Collective GPG key..."
-      curl -s https://repo.cider.sh/ARCH-GPG-KEY | sudo pacman-key --add -
-      sudo pacman-key --lsign-key A0CD6B993438E22634450CDD2A236C3F42A61682
-      success "Cider Collective GPG key added."
-    else
-      success "Cider GPG key already added."
-    fi
-
-    info "Appending Cider Collective repo to pacman.conf..."
-    sudo tee -a "$pacman_conf" > /dev/null <<EOF
-
-# Cider Collective Repository
-[cidercollective]
-SigLevel = Required TrustedOnly
-Server = https://repo.cider.sh/arch
-EOF
-    success "Cider Collective repo added."
-  fi
-}
-
 # === Install yay ===
 install_yay() {
   if command -v yay &>/dev/null; then
@@ -125,12 +98,12 @@ install_yay() {
 # === Install packages ===
 install_packages() {
   local packages=(
-    linux-cachyos base-devel steam modrinth-app-bin protonplus okular
+    linux-cachyos base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin
     ttf-jetbrains-mono-nerd inter-font code github-desktop-bin inkscape bazaar kcolorchooser
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
-    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak cidercollective/cider
+    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak spotify
   )
 
   info "Installing packages..."
@@ -151,6 +124,9 @@ install_flatpaks() {
     "io.gitlab.news_flash.NewsFlash"
     "fr.handbrake.ghb"
     "io.github.equicord.equibop"
+    "org.gnome.gitlab.YaLTeR.VideoTrimmer"
+    "fr.handbrake.ghb"
+    "com.github.unrud.VideoDownloader"
   )
 
   # Add flathub-beta remote if it doesn't exist
@@ -363,7 +339,6 @@ main() {
   enable_multilib
   enable_color
   add_cachyos_repo
-  add_cider_repo
   install_yay
   install_packages
   install_flatpaks
