@@ -99,11 +99,11 @@ install_yay() {
 install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin spotify
     ttf-jetbrains-mono-nerd inter-font code github-desktop-bin inkscape bazaar kcolorchooser
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
-    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak spotify
+    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
 
   info "Installing packages..."
@@ -123,10 +123,10 @@ install_flatpaks() {
     "io.github.nokse22.asciidraw"
     "io.gitlab.news_flash.NewsFlash"
     "fr.handbrake.ghb"
-    "io.github.equicord.equibop"
     "org.gnome.gitlab.YaLTeR.VideoTrimmer"
     "fr.handbrake.ghb"
     "com.github.unrud.VideoDownloader"
+    "com.github.tenderowl.frog"
   )
 
   # Add flathub-beta remote if it doesn't exist
