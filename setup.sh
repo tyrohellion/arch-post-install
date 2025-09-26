@@ -207,6 +207,8 @@ customize_bashrc() {
   add_line 'alias up="yay -Syu && protonup-rs -q && flatpak update"'
   add_line 'alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
   add_line 'alias xwayland-list="xlsclients -l"'
+  add_line 'alias mic-volume-set="wpctl set-volume 50"'
+  add_line 'alias mic-volume-status="wpctl status | awk '/50\. USB Audio Microphone/{flag=1} flag && /vol:/{print $2; exit}'"'
   add_line 'alias polling="gamepadla-polling"'
   add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"'
   add_line 'alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"'
