@@ -127,6 +127,7 @@ install_flatpaks() {
     "fr.handbrake.ghb"
     "com.github.unrud.VideoDownloader"
     "com.github.tenderowl.frog"
+    "org.gnome.Calculator"
   )
 
   # Add flathub-beta remote if it doesn't exist
