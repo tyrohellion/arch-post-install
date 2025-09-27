@@ -1,6 +1,12 @@
 #!/bin/bash
 set -euo pipefail
 
+# Prevent running as root
+if [ "$EUID" -eq 0 ]; then
+    echo -e "\033[0;31m✘ Please do NOT run setup.sh with sudo — run it as your normal user.\033[0m"
+    exit 1
+fi
+
 # === Colors for output ===
 RED='\033[0;31m'
 GREEN='\033[0;32m'
@@ -102,9 +108,9 @@ install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin spotify
-    ttf-jetbrains-mono-nerd inter-font code github-desktop-bin inkscape bazaar kcolorchooser
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
-    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
+    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
   run_with_spinner "Installing packages" yay -Syu --needed --noconfirm "${packages[@]}"
@@ -123,6 +129,7 @@ install_flatpaks() {
     com.github.unrud.VideoDownloader
     com.github.tenderowl.frog
     org.gnome.Calculator
+    com.vscodium.codium
   )
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
@@ -314,6 +321,88 @@ install_grub_theme() {
   success "Elegant GRUB theme installed."
 }
 
+# === Setup mic volume script ===
+setup_mic_volume_script() {
+  local mic_script="$HOME/.local/bin/mic-volume-set.sh"
+  mkdir -p "$(dirname "$mic_script")"
+
+  cat > "$mic_script" <<'EOF'
+#!/bin/bash
+MIC_ID=$(wpctl status | awk '/USB Audio Microphone/{print $3}' | tr -d '.')
+if [[ -n "$MIC_ID" ]]; then
+    wpctl set-volume "$MIC_ID" 1.4
+fi
+EOF
+
+  chmod +x "$mic_script"
+  success "Mic volume script created at $mic_script"
+}
+
+# === Setup mic volume script ===
+setup_mic_volume_script() {
+  run_with_spinner "Creating mic volume script" bash -c "
+    local mic_script=\"$HOME/.local/bin/mic-volume-set.sh\"
+    mkdir -p \"\$(dirname \"\$mic_script\")\"
+
+    cat > \"\$mic_script\" <<'EOF'
+#!/bin/bash
+MIC_ID=\$(wpctl status | awk '/USB Audio Microphone/{print \$3}' | tr -d '.')
+if [[ -n \"\$MIC_ID\" ]]; then
+    wpctl set-volume \"\$MIC_ID\" 1.4
+fi
+EOF
+
+    chmod +x \"\$mic_script\"
+  "
+  success "Mic volume script created at $HOME/.local/bin/mic-volume-set.sh"
+}
+
+# === Setup mic volume script ===
+setup_mic_volume_script() {
+  local mic_script="$HOME/.local/bin/mic-volume-set.sh"
+
+  run_with_spinner "Creating mic volume script" bash -c "
+    mkdir -p \"$(dirname "$mic_script")\"
+
+    cat > \"$mic_script\" <<'EOF'
+#!/bin/bash
+MIC_ID=\$(wpctl status | awk '/USB Audio Microphone/{print \$3}' | tr -d '.')
+if [[ -n \"\$MIC_ID\" ]]; then
+    wpctl set-volume \"\$MIC_ID\" 1.4
+fi
+EOF
+
+    chmod +x \"$mic_script\"
+  "
+  success "Mic volume script created at $mic_script"
+}
+
+# === Setup systemd service for mic volume ===
+setup_mic_systemd_service() {
+  local service_dir="$HOME/.config/systemd/user"
+  local service_file="$service_dir/mic-volume.service"
+
+  run_with_spinner "Creating mic volume systemd service" bash -c "
+    mkdir -p \"$service_dir\"
+
+    cat > \"$service_file\" <<EOF
+[Unit]
+Description=Set USB Mic Volume on Login
+After=graphical.target
+
+[Service]
+Type=oneshot
+ExecStart=$HOME/.local/bin/mic-volume-set.sh
+
+[Install]
+WantedBy=default.target
+EOF
+  "
+  systemctl --user daemon-reload
+  systemctl --user enable mic-volume.service
+  success "Mic volume systemd service created and enabled"
+}
+
 # === Main ===
 main() {
   enable_multilib
@@ -330,6 +419,8 @@ main() {
   setup_mangohud_config
   customize_firefox
   install_grub_theme
+  setup_mic_volume_script
+  setup_mic_systemd_service
   echo -e "\n${GREEN}All done! Reboot is recommended.${RESET}"
 }
 main

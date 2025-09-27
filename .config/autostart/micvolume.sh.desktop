@@ -1,6 +1,0 @@
-[Desktop Entry]
-Exec=/home/ty/Documents/autostarts/micvolume.sh
-Icon=application-x-shellscript
-Name=micvolume.sh
-Type=Application
-X-KDE-AutostartScript=true
