@@ -1,5 +1,5 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # === Colors for output ===
 RED='\033[0;31m'
@@ -14,8 +14,7 @@ warn()    { echo -e "${YELLOW}⚠ $*${RESET}"; }
 error()   { echo -e "${RED}✘ $*${RESET}"; }
 
 spinner() {
-  local pid=$1
-  local delay=0.1
+  local pid=$1 delay=0.2
   local spinstr='|/-\'
   while kill -0 "$pid" 2>/dev/null; do
     local temp=${spinstr#?}
@@ -44,26 +43,27 @@ env_file="/etc/environment"
 
 # === Enable multilib repo ===
 enable_multilib() {
-  if grep -q "^\[multilib\]" "$pacman_conf"; then
+  if grep -qF "[multilib]" "$pacman_conf"; then
     success "Multilib already enabled."
   else
-    run_with_spinner "Enabling multilib" sudo sed -i 's/^#\[multilib\]/[multilib]/' "$pacman_conf"
-    sudo awk '
-      BEGIN { in_multilib=0 }
-      /^\[multilib\]/ { in_multilib=1; print; next }
-      /^\[/ && $0 !~ /\[multilib\]/ { in_multilib=0 }
-      in_multilib && /^#Include = \/etc\/pacman.d\/mirrorlist/ {
-        print "Include = /etc/pacman.d/mirrorlist"; next
-      }
-      { print }
-    ' "$pacman_conf" | sudo tee "$pacman_conf.tmp" > /dev/null && sudo mv "$pacman_conf.tmp" "$pacman_conf"
-    success "Multilib enabled."
+    run_with_spinner "Enabling multilib" sudo bash -c "
+      sed -i 's/^#\[multilib\]/[multilib]/' '$pacman_conf'
+      awk '
+        BEGIN { in_multilib=0 }
+        /^\[multilib\]/ { in_multilib=1; print; next }
+        /^\[/ && \$0 !~ /\[multilib\]/ { in_multilib=0 }
+        in_multilib && /^#Include = \/etc\/pacman.d\/mirrorlist/ {
+          print \"Include = /etc/pacman.d/mirrorlist\"; next
+        }
+        { print }
+      ' '$pacman_conf' > '$pacman_conf.tmp' && mv '$pacman_conf.tmp' '$pacman_conf'
+    "
   fi
 }
 
 # === Enable colored output in pacman ===
 enable_color() {
-  if grep -q "^Color" "$pacman_conf"; then
+  if grep -qF "Color" "$pacman_conf"; then
     success "Color output already enabled."
   else
     run_with_spinner "Enabling colored output" sudo sed -i 's/^#Color/Color/' "$pacman_conf"
@@ -72,16 +72,18 @@ enable_color() {
 
 # === Add CachyOS repo ===
 add_cachyos_repo() {
-  if grep -q "\[cachyos\]" "$pacman_conf"; then
+  if grep -qF "[cachyos]" "$pacman_conf"; then
     success "CachyOS repo already exists."
   else
-    info "Downloading and adding CachyOS repo..."
-    curl -s https://mirror.cachyos.org/cachyos-repo.tar.xz -o cachyos-repo.tar.xz
-    tar xf cachyos-repo.tar.xz
-    cd cachyos-repo || { error "Failed to enter cachyos-repo dir"; exit 1; }
-    sudo ./cachyos-repo.sh
-    cd ..
-    rm -rf cachyos-repo cachyos-repo.tar.xz
+    local tmpdir
+    tmpdir=$(mktemp -d)
+    run_with_spinner "Downloading and adding CachyOS repo" bash -c "
+      cd '$tmpdir'
+      curl -sL https://mirror.cachyos.org/cachyos-repo.tar.xz -o repo.tar.xz
+      tar xf repo.tar.xz
+      cd cachyos-repo && sudo ./cachyos-repo.sh
+    "
+    rm -rf "$tmpdir"
     success "CachyOS repo added."
   fi
 }
@@ -105,53 +107,37 @@ install_packages() {
     git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kate kwrited
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
-
-  info "Installing packages..."
-  if ! yay -Syu --needed --noconfirm "${packages[@]}"; then
-    error "Some packages failed to install"
-    exit 2
-  fi
-  success "All packages installed."
+  run_with_spinner "Installing packages" yay -Syu --needed --noconfirm "${packages[@]}"
 }
 
 # === Install Flatpaks ===
 install_flatpaks() {
   local flatpaks=(
-    "com.dec05eba.gpu_screen_recorder"
-    "io.github.celluloid_player.Celluloid"
-    "io.gitlab.adhami3310.Converter"
-    "io.github.nokse22.asciidraw"
-    "io.gitlab.news_flash.NewsFlash"
-    "fr.handbrake.ghb"
-    "org.gnome.gitlab.YaLTeR.VideoTrimmer"
-    "fr.handbrake.ghb"
-    "com.github.unrud.VideoDownloader"
-    "com.github.tenderowl.frog"
-    "org.gnome.Calculator"
+    com.dec05eba.gpu_screen_recorder
+    io.github.celluloid_player.Celluloid
+    io.gitlab.adhami3310.Converter
+    io.github.nokse22.asciidraw
+    io.gitlab.news_flash.NewsFlash
+    fr.handbrake.ghb
+    org.gnome.gitlab.YaLTeR.VideoTrimmer
+    com.github.unrud.VideoDownloader
+    com.github.tenderowl.frog
+    org.gnome.Calculator
   )
 
-  # Add flathub-beta remote if it doesn't exist
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
     run_with_spinner "Adding flathub-beta remote" flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
   else
     success "flathub-beta remote already exists."
   fi
 
-  # Install regular flathub flatpaks
-  for flatpak_id in "${flatpaks[@]}"; do
-    if flatpak list --app | grep -q "^$flatpak_id"; then
-      success "$flatpak_id already installed."
-    else
-      run_with_spinner "Installing $flatpak_id (flatpak)" flatpak install -y flathub "$flatpak_id"
-    fi
-  done
+  run_with_spinner "Installing Flatpaks" flatpak install -y --noninteractive flathub "${flatpaks[@]}"
 
-  # Handle the beta app: com.stremio.Stremio
   local stremio_id="com.stremio.Stremio"
-  if flatpak list --app | grep -q "^$stremio_id"; then
-    success "$stremio_id already installed."
-  else
+  if ! flatpak list --app | grep -q "^$stremio_id"; then
     run_with_spinner "Installing $stremio_id (flathub-beta)" flatpak install -y flathub-beta "$stremio_id"
+  else
+    success "$stremio_id already installed."
   fi
 }
 
@@ -161,7 +147,6 @@ apply_konsave() {
   if [[ -f "$knsv_file" ]]; then
     run_with_spinner "Applying konsave profile" konsave -i "$knsv_file"
     run_with_spinner "Activating konsave profile 'arch'" konsave -a arch
-    success "Konsave profile applied."
   else
     warn "Konsave file '$knsv_file' not found, skipping."
   fi
@@ -180,42 +165,42 @@ enable_os_prober() {
 set_grub_cmdline() {
   local desired="GRUB_CMDLINE_LINUX_DEFAULT='nvme_load=YES zswap.enabled=0 loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
 
-  if grep -q "^GRUB_CMDLINE_LINUX_DEFAULT=" "$grub_conf"; then
-    run_with_spinner "Updating GRUB_CMDLINE_LINUX_DEFAULT" sudo sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|$desired|" "$grub_conf"
-  else
-    echo "$desired" | sudo tee -a "$grub_conf" > /dev/null
-    success "Added GRUB_CMDLINE_LINUX_DEFAULT to grub config."
-  fi
-
-  run_with_spinner "Generating GRUB config" sudo grub-mkconfig -o /boot/grub/grub.cfg
+  run_with_spinner "Updating GRUB_CMDLINE_LINUX_DEFAULT" bash -c "
+    if grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=' '$grub_conf'; then
+      sudo sed -i \"s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|$desired|\" '$grub_conf'
+    else
+      echo \"$desired\" | sudo tee -a '$grub_conf' > /dev/null
+    fi
+    sudo grub-mkconfig -o /boot/grub/grub.cfg
+  "
 }
 
 # === Customize .bashrc aliases and startup ===
 customize_bashrc() {
-  add_line() {
-    local line="$1"
+  info "Customizing $bashrc_file..."
+  local aliases=$(cat <<'EOF'
+alias up="yay -Syu && protonup-rs -q && flatpak update"
+alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
+alias xwayland-list="xlsclients -l"
+alias mic-volume-set="wpctl set-volume"
+alias mic-volume-status="wpctl status | awk '/USB Audio Microphone/{flag=1} flag && /vol:/{print $2; exit}'"
+alias polling="gamepadla-polling"
+alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
+alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"
+alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -Sy bakkesmod-steam --rebuild --noconfirm; else yay -Sy bakkesmod-steam --rebuild --noconfirm; fi"
+eval "$(starship init bash)"
+EOF
+)
+
+  while IFS= read -r line; do
     if ! grep -Fxq "$line" "$bashrc_file"; then
       echo "$line" >> "$bashrc_file"
       success "Added: $line"
     else
       info "Already exists: $line"
     fi
-  }
+  done <<< "$aliases"
 
-  info "Customizing $bashrc_file..."
-
-  add_line 'alias up="yay -Syu && protonup-rs -q && flatpak update"'
-  add_line 'alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"'
-  add_line 'alias xwayland-list="xlsclients -l"'
-  add_line 'alias mic-volume-set="wpctl set-volume 50"'
-  add_line 'alias mic-volume-status="wpctl status | awk '/50\. USB Audio Microphone/{flag=1} flag && /vol:/{print $2; exit}'"'
-  add_line 'alias polling="gamepadla-polling"'
-  add_line 'alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"'
-  add_line 'alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"'
-  add_line 'alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -S bakkesmod-steam --rebuild --noconfirm; else yay -S bakkesmod-steam --rebuild --noconfirm; fi"'
-  add_line 'eval "$(starship init bash)"'
-
-  # Prepend pfetch at top if missing
   if ! grep -Fxq "pfetch" "$bashrc_file"; then
     sed -i "1i pfetch" "$bashrc_file"
     success "Added pfetch at the top of $bashrc_file"
@@ -224,10 +209,9 @@ customize_bashrc() {
   fi
 }
 
-# === Add env vars to /etc/environment ===
+# === Add env vars ===
 add_env_var() {
-  local key="$1"
-  local value="$2"
+  local key="$1" value="$2"
   if grep -q "^${key}=" "$env_file"; then
     info "$key already set in $env_file."
   else
@@ -235,12 +219,9 @@ add_env_var() {
     success "Added $key=\"$value\""
   fi
 }
+add_environment_vars() { add_env_var "ELECTRON_OZONE_PLATFORM_HINT" "auto"; }
 
-add_environment_vars() {
-  add_env_var "ELECTRON_OZONE_PLATFORM_HINT" "auto"
-}
-
-# === MangoHud per-user config ===
+# === MangoHud config ===
 setup_mangohud_config() {
   info "Creating MangoHud config..."
   mkdir -p "$HOME/.config/MangoHud"
@@ -300,44 +281,40 @@ EOF
 
 # === Firefox customization ===
 customize_firefox() {
-  local repo_dir="arcadia"
   local firefox_dir="$HOME/.mozilla/firefox"
+  local tmpdir
+  tmpdir=$(mktemp -d)
   info "Applying Firefox customizations..."
 
-  if [[ -d $repo_dir ]]; then rm -rf "$repo_dir"; fi
-
-  git clone --quiet https://github.com/tyrohellion/arcadia
+  git clone --quiet --depth=1 https://github.com/tyrohellion/arcadia "$tmpdir"
 
   local profile_path
   profile_path=$(find "$firefox_dir" -maxdepth 1 -type d -name "*default-release" | head -n1)
 
   if [[ -d "$profile_path" ]]; then
-    cp -r "$repo_dir/chrome" "$profile_path/"
-    cp "$repo_dir/user.js" "$profile_path/"
+    cp -r "$tmpdir/chrome" "$profile_path/"
+    cp "$tmpdir/user.js" "$profile_path/"
     success "Custom Firefox files copied to profile: $profile_path"
   else
     warn "Firefox default-release profile not found, skipping customization."
   fi
 
-  rm -rf "$repo_dir"
+  rm -rf "$tmpdir"
 }
 
 # === Elegant GRUB theme install ===
 install_grub_theme() {
-  local theme_dir="Elegant-grub2-themes"
+  local tmpdir
+  tmpdir=$(mktemp -d)
   info "Installing Elegant GRUB theme..."
 
-  if [[ -d $theme_dir ]]; then rm -rf "$theme_dir"; fi
-
-  git clone --quiet https://github.com/vinceliuice/Elegant-grub2-themes
-  cd "$theme_dir"
-  sudo ./install.sh -t forest -p float -i left -c dark -s 1080p -l system
-  cd ..
-  rm -rf "$theme_dir"
+  git clone --quiet --depth=1 https://github.com/vinceliuice/Elegant-grub2-themes "$tmpdir"
+  (cd "$tmpdir" && sudo ./install.sh -t forest -p float -i left -c dark -s 1080p -l system)
+  rm -rf "$tmpdir"
   success "Elegant GRUB theme installed."
 }
 
-# === Main execution flow ===
+# === Main ===
 main() {
   enable_multilib
   enable_color
@@ -353,8 +330,6 @@ main() {
   setup_mangohud_config
   customize_firefox
   install_grub_theme
-
   echo -e "\n${GREEN}All done! Reboot is recommended.${RESET}"
 }
-
 main
