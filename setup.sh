@@ -94,12 +94,12 @@ add_cachyos_repo() {
   fi
 }
 
-# === Install yay ===
-install_yay() {
-  if command -v yay &>/dev/null; then
-    success "yay already installed."
+# === Install paru ===
+install_paru() {
+  if command -v paru &>/dev/null; then
+    success "paru already installed."
   else
-    run_with_spinner "Installing yay" sudo pacman -Sy --noconfirm yay
+    run_with_spinner "Installing paru" sudo pacman -Sy --noconfirm paru
   fi
 }
 
@@ -107,13 +107,13 @@ install_yay() {
 install_packages() {
   local packages=(
     linux-cachyos base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg volt-gui localsend-bin spotify
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zen-browser-bin
     os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord
-    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited
+    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
-  run_with_spinner "Installing packages" yay -Syu --needed --noconfirm "${packages[@]}"
+  run_with_spinner "Installing packages" paru -Syu --needed --noconfirm "${packages[@]}"
 }
 
 # === Install Flatpaks ===
@@ -123,7 +123,6 @@ install_flatpaks() {
     io.github.celluloid_player.Celluloid
     io.gitlab.adhami3310.Converter
     io.github.nokse22.asciidraw
-    io.gitlab.news_flash.NewsFlash
     fr.handbrake.ghb
     org.gnome.gitlab.YaLTeR.VideoTrimmer
     com.github.unrud.VideoDownloader
@@ -186,15 +185,15 @@ set_grub_cmdline() {
 customize_bashrc() {
   info "Customizing $bashrc_file..."
   local aliases=$(cat <<'EOF'
-alias up="yay -Syu && protonup-rs -q && flatpak update"
+alias up="paru -Syu && protonup-rs -q && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
 alias mic-volume-set="wpctl set-volume"
 alias mic-volume-status="wpctl status | awk '/USB Audio Microphone/{flag=1} flag && /vol:/{print $2; exit}'"
 alias polling="gamepadla-polling"
 alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
-alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 30"
-alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -Sy bakkesmod-steam --rebuild --noconfirm; else yay -Sy bakkesmod-steam --rebuild --noconfirm; fi"
+alias paru-recent="grep -i installed /var/log/pacman.log | tail -n 30"
+alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then paru -Rns bakkesmod-steam && paru -Sy bakkesmod-steam --rebuild --noconfirm; else paru -Sy bakkesmod-steam --rebuild --noconfirm; fi"
 eval "$(starship init bash)"
 EOF
 )
@@ -338,77 +337,12 @@ EOF
   success "Mic volume script created at $mic_script"
 }
 
-# === Setup mic volume script ===
-setup_mic_volume_script() {
-  run_with_spinner "Creating mic volume script" bash -c "
-    local mic_script=\"$HOME/.local/bin/mic-volume-set.sh\"
-    mkdir -p \"\$(dirname \"\$mic_script\")\"
-
-    cat > \"\$mic_script\" <<'EOF'
-#!/bin/bash
-MIC_ID=\$(wpctl status | awk '/USB Audio Microphone/{print \$3}' | tr -d '.')
-if [[ -n \"\$MIC_ID\" ]]; then
-    wpctl set-volume \"\$MIC_ID\" 1.4
-fi
-EOF
-
-    chmod +x \"\$mic_script\"
-  "
-  success "Mic volume script created at $HOME/.local/bin/mic-volume-set.sh"
-}
-
-# === Setup mic volume script ===
-setup_mic_volume_script() {
-  local mic_script="$HOME/.local/bin/mic-volume-set.sh"
-
-  run_with_spinner "Creating mic volume script" bash -c "
-    mkdir -p \"$(dirname "$mic_script")\"
-
-    cat > \"$mic_script\" <<'EOF'
-#!/bin/bash
-MIC_ID=\$(wpctl status | awk '/USB Audio Microphone/{print \$3}' | tr -d '.')
-if [[ -n \"\$MIC_ID\" ]]; then
-    wpctl set-volume \"\$MIC_ID\" 1.4
-fi
-EOF
-
-    chmod +x \"$mic_script\"
-  "
-  success "Mic volume script created at $mic_script"
-}
-
-# === Setup systemd service for mic volume ===
-setup_mic_systemd_service() {
-  local service_dir="$HOME/.config/systemd/user"
-  local service_file="$service_dir/mic-volume.service"
-
-  run_with_spinner "Creating mic volume systemd service" bash -c "
-    mkdir -p \"$service_dir\"
-
-    cat > \"$service_file\" <<EOF
-[Unit]
-Description=Set USB Mic Volume on Login
-After=graphical.target
-
-[Service]
-Type=oneshot
-ExecStart=$HOME/.local/bin/mic-volume-set.sh
-
-[Install]
-WantedBy=default.target
-EOF
-  "
-  systemctl --user daemon-reload
-  systemctl --user enable mic-volume.service
-  success "Mic volume systemd service created and enabled"
-}
-
 # === Main ===
 main() {
   enable_multilib
   enable_color
   add_cachyos_repo
-  install_yay
+  install_paru
   install_packages
   install_flatpaks
   apply_konsave
@@ -419,8 +353,6 @@ main() {
   setup_mangohud_config
   customize_firefox
   install_grub_theme
-  setup_mic_volume_script
-  setup_mic_systemd_service
   echo -e "\n${GREEN}All done! Reboot is recommended.${RESET}"
 }
 main
