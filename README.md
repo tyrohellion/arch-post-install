@@ -12,8 +12,6 @@ To automate my personal Arch Linux install whenever I need to
 ## Summary of changes
 
 1. Enables multilib and Color in /etc/pacman.conf
-2. Adds the CachyOS repositories
-3. Adds the Cider Collective repository
 4. Installs paru and flatpak packages
 5. Applies my personal konsave profile
 6. Enables os-prober and kernel parameters

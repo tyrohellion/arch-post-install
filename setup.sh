@@ -76,41 +76,61 @@ enable_color() {
   fi
 }
 
-# === Add CachyOS repo ===
-add_cachyos_repo() {
-  if grep -qF "[cachyos]" "$pacman_conf"; then
-    success "CachyOS repo already exists."
-  else
-    local tmpdir
-    tmpdir=$(mktemp -d)
-    run_with_spinner "Downloading and adding CachyOS repo" bash -c "
-      cd '$tmpdir'
-      curl -sL https://mirror.cachyos.org/cachyos-repo.tar.xz -o repo.tar.xz
-      tar xf repo.tar.xz
-      cd cachyos-repo && sudo ./cachyos-repo.sh
-    "
-    rm -rf "$tmpdir"
-    success "CachyOS repo added."
-  fi
-}
-
 # === Install paru ===
 install_paru() {
   if command -v paru &>/dev/null; then
     success "paru already installed."
   else
-    run_with_spinner "Installing paru" sudo pacman -Sy --noconfirm paru
+    run_with_spinner "Installing paru" bash -c '
+      sudo pacman -S --needed base-devel git --noconfirm
+      git clone https://aur.archlinux.org/paru.git
+      cd paru
+      makepkg -si --noconfirm
+      cd ..
+      rm -rf paru
+    '
+  fi
+}
+
+# === Enable BottomUp and SudoLoop in paru.conf ===
+enable_paru_options() {
+  local paru_conf="/etc/paru.conf"
+
+  # --- BottomUp ---
+  if grep -qv "^#BottomUp" "$paru_conf" && grep -q "^BottomUp" "$paru_conf"; then
+    success "BottomUp already enabled in paru.conf."
+  else
+    if grep -q "^#BottomUp" "$paru_conf"; then
+      run_with_spinner "Enabling BottomUp in paru.conf" sudo sed -i 's/^#BottomUp/BottomUp/' "$paru_conf"
+    else
+      warn "BottomUp line not found in paru.conf — appending manually."
+      echo "BottomUp" | sudo tee -a "$paru_conf" > /dev/null
+    fi
+    success "BottomUp enabled in paru.conf."
+  fi
+
+  # --- SudoLoop ---
+  if grep -qv "^#SudoLoop" "$paru_conf" && grep -q "^SudoLoop" "$paru_conf"; then
+    success "SudoLoop already enabled in paru.conf."
+  else
+    if grep -q "^#SudoLoop" "$paru_conf"; then
+      run_with_spinner "Enabling SudoLoop in paru.conf" sudo sed -i 's/^#SudoLoop/SudoLoop/' "$paru_conf"
+    else
+      warn "SudoLoop line not found in paru.conf — appending manually."
+      echo "SudoLoop" | sudo tee -a "$paru_conf" > /dev/null
+    fi
+    success "SudoLoop enabled in paru.conf."
   fi
 }
 
 # === Install packages ===
 install_packages() {
   local packages=(
-    linux-cachyos base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers
+    base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zen-browser-bin
-    os-prober starship audacious proton-cachyos firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde
-    git bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser
+    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde
+    bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
   run_with_spinner "Installing packages" paru -Syu --needed --noconfirm "${packages[@]}"
@@ -129,6 +149,7 @@ install_flatpaks() {
     com.github.tenderowl.frog
     org.gnome.Calculator
     com.vscodium.codium
+    io.gitlab.adhami3310.Footage
   )
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
@@ -320,29 +341,12 @@ install_grub_theme() {
   success "Elegant GRUB theme installed."
 }
 
-# === Setup mic volume script ===
-setup_mic_volume_script() {
-  local mic_script="$HOME/.local/bin/mic-volume-set.sh"
-  mkdir -p "$(dirname "$mic_script")"
-
-  cat > "$mic_script" <<'EOF'
-#!/bin/bash
-MIC_ID=$(wpctl status | awk '/USB Audio Microphone/{print $3}' | tr -d '.')
-if [[ -n "$MIC_ID" ]]; then
-    wpctl set-volume "$MIC_ID" 1.4
-fi
-EOF
-
-  chmod +x "$mic_script"
-  success "Mic volume script created at $mic_script"
-}
-
 # === Main ===
 main() {
   enable_multilib
   enable_color
-  add_cachyos_repo
   install_paru
+  enable_paru_options
   install_packages
   install_flatpaks
   apply_konsave
