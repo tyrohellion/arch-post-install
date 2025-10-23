@@ -131,7 +131,7 @@ install_packages() {
     base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers heroic-games-launcher-bin
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin
-    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde
+    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
