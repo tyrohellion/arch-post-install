@@ -49,30 +49,32 @@ env_file="/etc/environment"
 
 # === Enable multilib repo ===
 enable_multilib() {
-  if grep -qF "[multilib]" "$pacman_conf"; then
+  if grep -Eq '^[[:space:]]*\[multilib\]' "$pacman_conf"; then
     success "Multilib already enabled."
   else
-    run_with_spinner "Enabling multilib" sudo bash -c "
-      sed -i 's/^#\[multilib\]/[multilib]/' '$pacman_conf'
-      awk '
-        BEGIN { in_multilib=0 }
-        /^\[multilib\]/ { in_multilib=1; print; next }
-        /^\[/ && \$0 !~ /\[multilib\]/ { in_multilib=0 }
-        in_multilib && /^#Include = \/etc\/pacman.d\/mirrorlist/ {
-          print \"Include = /etc/pacman.d/mirrorlist\"; next
-        }
-        { print }
-      ' '$pacman_conf' > '$pacman_conf.tmp' && mv '$pacman_conf.tmp' '$pacman_conf'
+    run_with_spinner "Enabling multilib" bash -c "
+      # Uncomment the [multilib] line (with or without spaces)
+      sudo sed -i 's/^[[:space:]]*#\s*\[multilib\]/[multilib]/' '$pacman_conf'
+
+      # Uncomment the Include line just below it, if commented
+      sudo sed -i '/\[multilib\]/,/^\\[/ s/^[[:space:]]*#\s*Include/Include/' '$pacman_conf'
     "
+    success "Multilib repository enabled."
   fi
 }
 
-# === Enable colored output in pacman ===
+# === Enable colored output ===
 enable_color() {
-  if grep -qF "Color" "$pacman_conf"; then
+  if grep -Eq '^[[:space:]]*Color' "$pacman_conf"; then
     success "Color output already enabled."
   else
-    run_with_spinner "Enabling colored output" sudo sed -i 's/^#Color/Color/' "$pacman_conf"
+    if grep -Eq '^[[:space:]]*#\s*Color' "$pacman_conf"; then
+      run_with_spinner "Enabling colored output" sudo sed -i 's/^[[:space:]]*#\s*Color/Color/' "$pacman_conf"
+    else
+      warn "No Color line found in $pacman_conf — adding it manually."
+      echo -e "\nColor" | sudo tee -a "$pacman_conf" > /dev/null
+    fi
+    success "Color output enabled."
   fi
 }
 
@@ -96,7 +98,7 @@ install_paru() {
 enable_paru_options() {
   local paru_conf="/etc/paru.conf"
 
-  # --- BottomUp ---
+  # --- BottomUp in paru config ---
   if grep -qv "^#BottomUp" "$paru_conf" && grep -q "^BottomUp" "$paru_conf"; then
     success "BottomUp already enabled in paru.conf."
   else
@@ -109,7 +111,7 @@ enable_paru_options() {
     success "BottomUp enabled in paru.conf."
   fi
 
-  # --- SudoLoop ---
+  # --- SudoLoop in paru config ---
   if grep -qv "^#SudoLoop" "$paru_conf" && grep -q "^SudoLoop" "$paru_conf"; then
     success "SudoLoop already enabled in paru.conf."
   else
