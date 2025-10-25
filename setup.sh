@@ -132,7 +132,7 @@ install_packages() {
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin
-    bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman
+    bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
   )
   run_with_spinner "Installing packages" paru -Syu --needed --noconfirm "${packages[@]}"
@@ -145,7 +145,6 @@ install_flatpaks() {
     io.github.celluloid_player.Celluloid
     io.gitlab.adhami3310.Converter
     io.github.nokse22.asciidraw
-    fr.handbrake.ghb
     org.gnome.gitlab.YaLTeR.VideoTrimmer
     com.github.unrud.VideoDownloader
     com.github.tenderowl.frog
@@ -210,8 +209,6 @@ customize_bashrc() {
 alias up="paru -Syu && protonup-rs -q && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
-alias mic-volume-set="wpctl set-volume"
-alias mic-volume-status="wpctl status | awk '/USB Audio Microphone/{flag=1} flag && /vol:/{print $2; exit}'"
 alias polling="gamepadla-polling"
 alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
 alias paru-recent="grep -i installed /var/log/pacman.log | tail -n 30"
