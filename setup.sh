@@ -128,7 +128,7 @@ enable_paru_options() {
 # === Install packages ===
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus okular linux-prjc linux-prjc-headers heroic-games-launcher-bin
+    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin
