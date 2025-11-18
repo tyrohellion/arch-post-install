@@ -128,12 +128,12 @@ enable_paru_options() {
 # === Install packages ===
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin
+    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
-    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin
+    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
   run_with_spinner "Installing packages" paru -Syu --needed --noconfirm "${packages[@]}"
 }
@@ -148,8 +148,8 @@ install_flatpaks() {
     org.gnome.gitlab.YaLTeR.VideoTrimmer
     com.github.unrud.VideoDownloader
     com.github.tenderowl.frog
-    org.gnome.Calculator
     io.gitlab.adhami3310.Footage
+    org.gnome.design.Lorem
   )
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
