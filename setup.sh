@@ -130,8 +130,8 @@ install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin
-    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin nextcloud-client
+    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin nextcloud
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
@@ -190,7 +190,7 @@ enable_os_prober() {
 
 # === Set GRUB_CMDLINE_LINUX_DEFAULT ===
 set_grub_cmdline() {
-  local desired="GRUB_CMDLINE_LINUX_DEFAULT='nvme_load=YES zswap.enabled=0 loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
+  local desired="GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 splash loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
 
   run_with_spinner "Updating GRUB_CMDLINE_LINUX_DEFAULT" bash -c "
     if grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=' '$grub_conf'; then
