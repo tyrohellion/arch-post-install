@@ -44,7 +44,7 @@ run_with_spinner() {
 # === Paths ===
 pacman_conf="/etc/pacman.conf"
 grub_conf="/etc/default/grub"
-fish_config="~/.config/fish/config.fish"
+fish_config="/usr/share/cachyos-fish-config/cachyos-config.fish"
 env_file="/etc/environment"
 
 # === Enable multilib repo ===
@@ -190,8 +190,134 @@ set_grub_cmdline() {
 
 # === Customize fish config aliases and startup ===
 customize_fish_config() {
-  info "Customizing $fish_config..."
-  local aliases=$(cat <<'EOF'
+  info "Overwriting $fish_config..."
+
+  sudo tee "$fish_config" > /dev/null <<'EOF'
+## Source from conf.d before our fish config
+source /usr/share/cachyos-fish-config/conf.d/done.fish
+
+## Set values
+## Run fastfetch as welcome message
+function fish_greeting
+    pfetch
+end
+
+# Format man pages
+set -x MANROFFOPT "-c"
+set -x MANPAGER "sh -c 'col -bx | bat -l man -p'"
+
+# Set settings for https://github.com/franciscolourenco/done
+set -U __done_min_cmd_duration 10000
+set -U __done_notification_urgency_level low
+
+## Environment setup
+# Apply .profile: use this to put fish compatible .profile stuff in
+if test -f ~/.fish_profile
+  source ~/.fish_profile
+end
+
+# Add ~/.local/bin to PATH
+if test -d ~/.local/bin
+    if not contains -- ~/.local/bin $PATH
+        set -p PATH ~/.local/bin
+    end
+end
+
+# Add depot_tools to PATH
+if test -d ~/Applications/depot_tools
+    if not contains -- ~/Applications/depot_tools $PATH
+        set -p PATH ~/Applications/depot_tools
+    end
+end
+
+## Functions
+# Functions needed for !! and !$ https://github.com/oh-my-fish/plugin-bang-bang
+function __history_previous_command
+  switch (commandline -t)
+  case "!"
+    commandline -t $history[1]; commandline -f repaint
+  case "*"
+    commandline -i !
+  end
+end
+
+function __history_previous_command_arguments
+  switch (commandline -t)
+  case "!"
+    commandline -t ""
+    commandline -f history-token-search-backward
+  case "*"
+    commandline -i '$'
+  end
+end
+
+if [ "$fish_key_bindings" = fish_vi_key_bindings ];
+  bind -Minsert ! __history_previous_command
+  bind -Minsert '$' __history_previous_command_arguments
+else
+  bind ! __history_previous_command
+  bind '$' __history_previous_command_arguments
+end
+
+# Fish command history
+function history
+    builtin history --show-time='%F %T '
+end
+
+function backup --argument filename
+    cp $filename $filename.bak
+end
+
+# Copy DIR1 DIR2
+function copy
+    set count (count $argv | tr -d \n)
+    if test "$count" = 2; and test -d "$argv[1]"
+        set from (echo $argv[1] | trim-right /)
+        set to (echo $argv[2])
+        command cp -r $from $to
+    else
+        command cp $argv
+    end
+end
+
+## Useful aliases
+# Replace ls with eza
+alias ls='eza -al --color=always --group-directories-first --icons'
+alias la='eza -a --color=always --group-directories-first --icons'
+alias ll='eza -l --color=always --group-directories-first --icons'
+alias lt='eza -aT --color=always --group-directories-first --icons'
+alias l.="eza -a | grep -e '^\.'"
+
+# Common use
+alias fixpacman="sudo rm /var/lib/pacman/db.lck"
+alias tarnow='tar -acf '
+alias untar='tar -zxvf '
+alias wget='wget -c '
+alias psmem='ps auxf | sort -nr -k 4'
+alias psmem10='ps auxf | sort -nr -k 4 | head -10'
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+alias .....='cd ../../../..'
+alias ......='cd ../../../../..'
+alias dir='dir --color=auto'
+alias vdir='vdir --color=auto'
+alias grep='grep --color=auto'
+alias fgrep='fgrep --color=auto'
+alias egrep='egrep --color=auto'
+alias hw='hwinfo --short'
+alias big="expac -H M '%m\t%n' | sort -h | nl"
+alias gitpkg='pacman -Q | grep -i "\-git" | wc -l'
+
+# Get fastest mirrors
+alias mirror="sudo cachyos-rate-mirrors"
+
+# Cleanup orphaned packages
+alias cleanup='sudo pacman -Rns (pacman -Qtdq)'
+
+# Get the error messages from journalctl
+alias jctl="journalctl -p 3 -xb"
+
 alias up="paru -Syu && protonup-rs -q && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
@@ -199,26 +325,18 @@ alias firmware-update="sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sud
 alias polling="gamepadla-polling"
 alias tailstart="sudo systemctl start tailscaled"
 alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
-alias paru-recent="grep -i installed /var/log/pacman.log | tail -n 30"
-alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then paru -Rns bakkesmod-steam && paru -Sy bakkesmod-steam --rebuild --noconfirm; else paru -Sy bakkesmod-steam --rebuild --noconfirm; fi"
-EOF
-)
-
-  while IFS= read -r line; do
-    if ! grep -Fxq "$line" "$fish_config"; then
-      echo "$line" >> "$fish_config"
-      success "Added: $line"
+alias paru-recent="grep -i installed /var/log/pacman.log | tail -n 200"
+function bakkes-update
+    if pacman -Qs bakkesmod-steam > /dev/null
+        paru -Rns bakkesmod-steam
+        paru -Sy bakkesmod-steam --rebuild --noconfirm
     else
-      info "Already exists: $line"
-    fi
-  done <<< "$aliases"
+        paru -Sy bakkesmod-steam --rebuild --noconfirm
+    end
+end
+EOF
 
-  if ! grep -Fxq "pfetch" "$fish_config"; then
-    sed -i "1i pfetch" "$fish_config"
-    success "Added pfetch at the top of $fish_config"
-  else
-    info "pfetch already at top of $fish_config"
-  fi
+  success "Wrote new config to $fish_config"
 }
 
 # === Add env vars ===
