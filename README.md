@@ -2,8 +2,7 @@
 
 1. `git clone https://github.com/tyrohellion/arch-post-install`
 2. `cd arch-post-install`
-3. `chmod +x setup.sh`
-4. `./setup.sh`
+4. `./setup.sh` or `./cachyos_setup.sh` if you're running cachyos
 
 ## Why?
 
