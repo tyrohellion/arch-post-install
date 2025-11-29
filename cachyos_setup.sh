@@ -157,10 +157,10 @@ install_flatpaks() {
 
 # === Apply konsave profile ===
 apply_konsave() {
-  local knsv_file="arch.knsv"
+  local knsv_file="cachy.knsv"
   if [[ -f "$knsv_file" ]]; then
     run_with_spinner "Applying konsave profile" konsave -i "$knsv_file"
-    run_with_spinner "Activating konsave profile 'arch'" konsave -a arch
+    run_with_spinner "Activating konsave profile 'cachy'" konsave -a cachy
   else
     warn "Konsave file '$knsv_file' not found, skipping."
   fi
