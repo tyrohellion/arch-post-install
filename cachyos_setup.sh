@@ -44,7 +44,7 @@ run_with_spinner() {
 # === Paths ===
 pacman_conf="/etc/pacman.conf"
 grub_conf="/etc/default/grub"
-bashrc_file="$HOME/.bashrc"
+fish_config="~/.config/fish/config.fish"
 env_file="/etc/environment"
 
 # === Enable multilib repo ===
@@ -188,9 +188,9 @@ set_grub_cmdline() {
   "
 }
 
-# === Customize .bashrc aliases and startup ===
-customize_bashrc() {
-  info "Customizing $bashrc_file..."
+# === Customize fish config aliases and startup ===
+customize_fish_config() {
+  info "Customizing $fish_config..."
   local aliases=$(cat <<'EOF'
 alias up="paru -Syu && protonup-rs -q && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
@@ -205,19 +205,19 @@ EOF
 )
 
   while IFS= read -r line; do
-    if ! grep -Fxq "$line" "$bashrc_file"; then
-      echo "$line" >> "$bashrc_file"
+    if ! grep -Fxq "$line" "$fish_config"; then
+      echo "$line" >> "$fish_config"
       success "Added: $line"
     else
       info "Already exists: $line"
     fi
   done <<< "$aliases"
 
-  if ! grep -Fxq "pfetch" "$bashrc_file"; then
-    sed -i "1i pfetch" "$bashrc_file"
-    success "Added pfetch at the top of $bashrc_file"
+  if ! grep -Fxq "pfetch" "$fish_config"; then
+    sed -i "1i pfetch" "$fish_config"
+    success "Added pfetch at the top of $fish_config"
   else
-    info "pfetch already at top of $bashrc_file"
+    info "pfetch already at top of $fish_config"
   fi
 }
 
@@ -336,7 +336,7 @@ main() {
   apply_konsave
   enable_os_prober
   set_grub_cmdline
-  customize_bashrc
+  customize_fish_config
   add_environment_vars
   setup_mangohud_config
   customize_firefox
