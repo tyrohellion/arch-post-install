@@ -78,64 +78,22 @@ enable_color() {
   fi
 }
 
-# === Install paru ===
-install_paru() {
-  if command -v paru &>/dev/null; then
-    success "paru already installed."
-  else
-    run_with_spinner "Installing paru" bash -c '
-      sudo pacman -S --needed base-devel git --noconfirm
-      git clone https://aur.archlinux.org/paru.git
-      cd paru
-      makepkg -si --noconfirm
-      cd ..
-      rm -rf paru
-    '
-  fi
-}
-
-# === Enable BottomUp and SudoLoop in paru.conf ===
-enable_paru_options() {
-  local paru_conf="/etc/paru.conf"
-
-  # --- BottomUp in paru config ---
-  if grep -qv "^#BottomUp" "$paru_conf" && grep -q "^BottomUp" "$paru_conf"; then
-    success "BottomUp already enabled in paru.conf."
-  else
-    if grep -q "^#BottomUp" "$paru_conf"; then
-      run_with_spinner "Enabling BottomUp in paru.conf" sudo sed -i 's/^#BottomUp/BottomUp/' "$paru_conf"
-    else
-      warn "BottomUp line not found in paru.conf — appending manually."
-      echo "BottomUp" | sudo tee -a "$paru_conf" > /dev/null
-    fi
-    success "BottomUp enabled in paru.conf."
-  fi
-
-  # --- SudoLoop in paru config ---
-  if grep -qv "^#SudoLoop" "$paru_conf" && grep -q "^SudoLoop" "$paru_conf"; then
-    success "SudoLoop already enabled in paru.conf."
-  else
-    if grep -q "^#SudoLoop" "$paru_conf"; then
-      run_with_spinner "Enabling SudoLoop in paru.conf" sudo sed -i 's/^#SudoLoop/SudoLoop/' "$paru_conf"
-    else
-      warn "SudoLoop line not found in paru.conf — appending manually."
-      echo "SudoLoop" | sudo tee -a "$paru_conf" > /dev/null
-    fi
-    success "SudoLoop enabled in paru.conf."
-  fi
-}
+sudo pacman -Syu --needed git base-devel
+git clone https://aur.archlinux.org/yay-bin.git
+cd yay-bin
+makepkg -si
 
 # === Install packages ===
 install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin copyparty
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin nextcloud-client
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin nextcloud
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
-  run_with_spinner "Installing packages" paru -Syu --needed --noconfirm "${packages[@]}"
+  run_with_spinner "Installing packages" yay -Syu --needed --noconfirm "${packages[@]}"
 }
 
 # === Install Flatpaks ===
@@ -206,15 +164,15 @@ set_grub_cmdline() {
 customize_bashrc() {
   info "Customizing $bashrc_file..."
   local aliases=$(cat <<'EOF'
-alias up="paru -Syu && protonup-rs -q && flatpak update"
+alias up="yay -Syu && protonup-rs -q && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
 alias firmware-update="sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
 alias polling="gamepadla-polling"
 alias tailstart="sudo systemctl start tailscaled"
 alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
-alias paru-recent="grep -i installed /var/log/pacman.log | tail -n 30"
-alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then paru -Rns bakkesmod-steam && paru -Sy bakkesmod-steam --rebuild --noconfirm; else paru -Sy bakkesmod-steam --rebuild --noconfirm; fi"
+alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 200"
+alias bakkes-update="if pacman -Qs bakkesmod-steam > /dev/null; then yay -Rns bakkesmod-steam && yay -Sy bakkesmod-steam --rebuild --noconfirm; else yay -Sy bakkesmod-steam --rebuild --noconfirm; fi"
 eval "$(starship init bash)"
 EOF
 )
@@ -345,8 +303,6 @@ install_grub_theme() {
 main() {
   enable_multilib
   enable_color
-  install_paru
-  enable_paru_options
   install_packages
   install_flatpaks
   apply_konsave
