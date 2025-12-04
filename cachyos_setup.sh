@@ -79,38 +79,7 @@ enable_color() {
   fi
 }
 
-sudo pacman -Syu paru --needed --noconfirm
-
-# === Enable BottomUp and SudoLoop in paru.conf ===
-enable_paru_options() {
-  local paru_conf="/etc/paru.conf"
-
-  # --- BottomUp in paru config ---
-  if grep -qv "^#BottomUp" "$paru_conf" && grep -q "^BottomUp" "$paru_conf"; then
-    success "BottomUp already enabled in paru.conf."
-  else
-    if grep -q "^#BottomUp" "$paru_conf"; then
-      run_with_spinner "Enabling BottomUp in paru.conf" sudo sed -i 's/^#BottomUp/BottomUp/' "$paru_conf"
-    else
-      warn "BottomUp line not found in paru.conf — appending manually."
-      echo "BottomUp" | sudo tee -a "$paru_conf" > /dev/null
-    fi
-    success "BottomUp enabled in paru.conf."
-  fi
-
-  # --- SudoLoop in paru config ---
-  if grep -qv "^#SudoLoop" "$paru_conf" && grep -q "^SudoLoop" "$paru_conf"; then
-    success "SudoLoop already enabled in paru.conf."
-  else
-    if grep -q "^#SudoLoop" "$paru_conf"; then
-      run_with_spinner "Enabling SudoLoop in paru.conf" sudo sed -i 's/^#SudoLoop/SudoLoop/' "$paru_conf"
-    else
-      warn "SudoLoop line not found in paru.conf — appending manually."
-      echo "SudoLoop" | sudo tee -a "$paru_conf" > /dev/null
-    fi
-    success "SudoLoop enabled in paru.conf."
-  fi
-}
+sudo pacman -Syu yay --needed --noconfirm
 
 # === Install packages ===
 install_packages() {
@@ -122,7 +91,7 @@ install_packages() {
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
-  run_with_spinner "Installing packages" paru -Syu --needed --noconfirm "${packages[@]}"
+  run_with_spinner "Installing packages" yay -Syu --needed --noconfirm "${packages[@]}"
 }
 
 # === Install Flatpaks ===
@@ -319,20 +288,20 @@ alias cleanup='sudo pacman -Rns (pacman -Qtdq)'
 # Get the error messages from journalctl
 alias jctl="journalctl -p 3 -xb"
 
-alias up="paru -Syu && protonup-rs -q && flatpak update"
+alias up="yay -Syu && protonup-rs -q && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
 alias firmware-update="sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
 alias polling="gamepadla-polling"
 alias tailstart="sudo systemctl start tailscaled"
 alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
-alias paru-recent="grep -i installed /var/log/pacman.log | tail -n 200"
+alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 200"
 function bakkes-update
     if pacman -Qs bakkesmod-steam > /dev/null
-        paru -Rns bakkesmod-steam
-        paru -Sy bakkesmod-steam --rebuild --noconfirm
+        yay -Rns bakkesmod-steam
+        yay -Sy bakkesmod-steam --rebuild --noconfirm
     else
-        paru -Sy bakkesmod-steam --rebuild --noconfirm
+        yay -Sy bakkesmod-steam --rebuild --noconfirm
     end
 end
 EOF
@@ -625,7 +594,6 @@ install_grub_theme() {
 main() {
   enable_multilib
   enable_color
-  enable_paru_options
   install_packages
   install_flatpaks
   apply_konsave
