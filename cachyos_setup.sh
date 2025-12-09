@@ -87,7 +87,7 @@ install_packages() {
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
     pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin copyparty
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin nextcloud
-    os-prober firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin tailscale nextcloud-client
+    os-prober firefox kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin tailscale nextcloud-client
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
@@ -104,8 +104,17 @@ install_flatpaks() {
     org.gnome.gitlab.YaLTeR.VideoTrimmer
     com.github.unrud.VideoDownloader
     com.github.tenderowl.frog
-    io.gitlab.adhami3310.Footage
     org.gnome.design.Lorem
+    com.authormore.penpotdesktop
+    com.discordapp.Discord
+    com.github.taiko2k.avvie
+    com.github.tchx84.Flatseal
+    io.github.flattool.Warehouse
+    io.github.josephmawa.SpellingBee
+    io.github.wartybix.Constrict
+    org.gnome.Decibels
+    org.gnome.design.Lorem
+    io.gitlab.theevilskeleton.Upscaler
   )
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
