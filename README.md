@@ -2,8 +2,8 @@
 
 1. `git clone https://github.com/tyrohellion/arch-post-install`
 2. `cd arch-post-install`
-3. `sudo chmod +x ./setup.sh` or `sudo chmod +x ./cachyos_setup.sh` 
-4. `./setup.sh` or `./cachyos_setup.sh` if you're running cachyos
+3. `sudo chmod +x ./setup.sh`
+4. `./setup.sh`
 
 ## Why?
 
@@ -12,11 +12,12 @@ To automate my personal Arch Linux install whenever I need to
 ## Summary of changes
 
 1. Enables multilib and Color in /etc/pacman.conf
-4. Installs paru and flatpak packages
+4. Installs yay and flatpak packages
 5. Applies my personal konsave profile
 6. Enables os-prober and kernel parameters
 7. Applies my .bashrc configs and configures starship
 8. Applies my personal env variables to /etc/environment
 9. Applies my mangohud config file
-10. Fetches and applies my own firefox theme and user.js
-11. Installs grub theme (https://github.com/vinceliuice/Elegant-grub2-themes)
+10. Applies my Alacritty config
+11. Fetches and applies my own firefox theme and user.js
+12. Installs grub theme (https://github.com/vinceliuice/Elegant-grub2-themes)

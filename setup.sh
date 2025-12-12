@@ -7,7 +7,7 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
-# === Colors for output ===
+# ===================== COLORS =====================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,85 +19,71 @@ success() { echo -e "${GREEN}✔ $*${RESET}"; }
 warn()    { echo -e "${YELLOW}⚠ $*${RESET}"; }
 error()   { echo -e "${RED}✘ $*${RESET}"; }
 
-spinner() {
-  local pid=$1 delay=0.2
-  local spinstr='|/-\'
-  while kill -0 "$pid" 2>/dev/null; do
-    local temp=${spinstr#?}
-    printf " [%c]  " "$spinstr"
-    spinstr=$temp${spinstr%"$temp"}
-    sleep $delay
-    printf "\b\b\b\b\b\b"
-  done
-  printf "      \b\b\b\b\b\b"
-}
+# ===================== QUIET EXEC WRAPPER =====================
+quiet() { "$@" >/dev/null 2>&1; }
 
-run_with_spinner() {
-  local msg="$1"
-  shift
-  info "$msg"
-  "$@" & spinner $!
-  wait $! || { error "Failed: $msg"; exit 1; }
-  success "$msg done."
-}
-
-# === Paths ===
+# ===================== PATHS =====================
 pacman_conf="/etc/pacman.conf"
 grub_conf="/etc/default/grub"
 bashrc_file="$HOME/.bashrc"
 alacritty_config="$HOME/.config/alacritty/alacritty.toml"
 env_file="/etc/environment"
 
-# === Enable multilib repo ===
+# ===================== FUNCTIONS =====================
+
 enable_multilib() {
   if grep -Eq '^[[:space:]]*\[multilib\]' "$pacman_conf"; then
     success "Multilib already enabled."
   else
-    run_with_spinner "Enabling multilib" bash -c "
-      # Uncomment the [multilib] line (with or without spaces)
-      sudo sed -i 's/^[[:space:]]*#\s*\[multilib\]/[multilib]/' '$pacman_conf'
-
-      # Uncomment the Include line just below it, if commented
-      sudo sed -i '/\[multilib\]/,/^\\[/ s/^[[:space:]]*#\s*Include/Include/' '$pacman_conf'
-    "
-    success "Multilib repository enabled."
+    info "Enabling multilib..."
+    quiet sudo sed -i 's/^[[:space:]]*#\s*\[multilib\]/[multilib]/' "$pacman_conf"
+    quiet sudo sed -i '/\[multilib\]/,/^\\[/ s/^[[:space:]]*#\s*Include/Include/' "$pacman_conf"
+    success "Multilib enabled."
   fi
 }
 
-# === Enable colored output ===
 enable_color() {
   if grep -Eq '^[[:space:]]*Color' "$pacman_conf"; then
-    success "Color output already enabled."
+    success "Pacman color already enabled."
   else
+    info "Enabling pacman color..."
     if grep -Eq '^[[:space:]]*#\s*Color' "$pacman_conf"; then
-      run_with_spinner "Enabling colored output" sudo sed -i 's/^[[:space:]]*#\s*Color/Color/' "$pacman_conf"
+      quiet sudo sed -i 's/^[[:space:]]*#\s*Color/Color/' "$pacman_conf"
     else
-      warn "No Color line found in $pacman_conf — adding it manually."
-      echo -e "\nColor" | sudo tee -a "$pacman_conf" > /dev/null
+      echo -e "\nColor" | sudo tee -a "$pacman_conf" >/dev/null
     fi
-    success "Color output enabled."
+    success "Pacman color enabled."
   fi
 }
 
-sudo pacman -Syu --needed git base-devel
-git clone https://aur.archlinux.org/yay-bin.git
-cd yay-bin
-makepkg -si
+install_yay() {
+  if command -v yay >/dev/null; then
+    success "yay already installed."
+    return
+  fi
 
-# === Install packages ===
+  info "Installing yay..."
+  quiet sudo pacman -Syu --needed git base-devel
+  quiet git clone https://aur.archlinux.org/yay-bin.git
+  quiet bash -c "cd yay-bin && makepkg -si --noconfirm"
+  quiet rm -rf yay-bin
+  success "yay installed."
+}
+
 install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
-    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin nextcloud-client
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin alacritty
-    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin nextcloud
+    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin
+    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
-  run_with_spinner "Installing packages" yay -Syu --needed --noconfirm "${packages[@]}"
+  info "Installing packages..."
+  quiet yay -Syu --needed --noconfirm "${packages[@]}"
+  success "Packages installed."
 }
 
-# === Install Flatpaks ===
 install_flatpaks() {
   local flatpaks=(
     com.dec05eba.gpu_screen_recorder
@@ -117,62 +103,55 @@ install_flatpaks() {
     org.gnome.Decibels
     org.gnome.design.Lorem
     io.gitlab.theevilskeleton.Upscaler
+    com.nextcloud.desktopclient.nextcloud
   )
 
+  info "Installing Flatpaks..."
+
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
-    run_with_spinner "Adding flathub-beta remote" flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
-  else
-    success "flathub-beta remote already exists."
+    quiet flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
   fi
 
-  run_with_spinner "Installing Flatpaks" flatpak install -y --noninteractive flathub "${flatpaks[@]}"
+  quiet flatpak install -y --noninteractive flathub "${flatpaks[@]}"
 
-  local stremio_id="com.stremio.Stremio"
-  if ! flatpak list --app | grep -q "^$stremio_id"; then
-    run_with_spinner "Installing $stremio_id (flathub-beta)" flatpak install -y flathub-beta "$stremio_id"
-  else
-    success "$stremio_id already installed."
+  if ! flatpak list --app | grep -q "^com.stremio.Stremio"; then
+    quiet flatpak install -y flathub-beta com.stremio.Stremio
   fi
+
+  success "Flatpaks installed."
 }
 
-# === Apply konsave profile ===
 apply_konsave() {
-  local knsv_file="arch.knsv"
-  if [[ -f "$knsv_file" ]]; then
-    run_with_spinner "Applying konsave profile" konsave -i "$knsv_file"
-    run_with_spinner "Activating konsave profile 'arch'" konsave -a arch
-  else
-    warn "Konsave file '$knsv_file' not found, skipping."
+  local knsv="arch.knsv"
+
+  if [[ ! -f "$knsv" ]]; then
+    warn "Konsave file '$knsv' not found. Skipping."
+    return
   fi
+
+  info "Applying konsave profile..."
+  quiet konsave -i "$knsv"
+  quiet konsave -a arch
+  success "KDE profile applied."
 }
 
-# === Enable OS prober in GRUB ===
 enable_os_prober() {
-  if grep -q "^#GRUB_DISABLE_OS_PROBER=false" "$grub_conf"; then
-    run_with_spinner "Enabling OS prober for GRUB" sudo sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' "$grub_conf"
-  else
-    success "GRUB OS prober already enabled or set."
-  fi
+  info "Ensuring GRUB OS prober is enabled..."
+  quiet sudo sed -i 's/^#GRUB_DISABLE_OS_PROBER=false/GRUB_DISABLE_OS_PROBER=false/' "$grub_conf" || true
+  success "GRUB OS prober enabled."
 }
 
-# === Set GRUB_CMDLINE_LINUX_DEFAULT ===
 set_grub_cmdline() {
-  local desired="GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 splash loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'"
-
-  run_with_spinner "Updating GRUB_CMDLINE_LINUX_DEFAULT" bash -c "
-    if grep -q '^GRUB_CMDLINE_LINUX_DEFAULT=' '$grub_conf'; then
-      sudo sed -i \"s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|$desired|\" '$grub_conf'
-    else
-      echo \"$desired\" | sudo tee -a '$grub_conf' > /dev/null
-    fi
-    sudo grub-mkconfig -o /boot/grub/grub.cfg
-  "
+  info "Updating GRUB kernel parameters..."
+  quiet sudo sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 splash loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'|" "$grub_conf"
+  quiet sudo grub-mkconfig -o /boot/grub/grub.cfg
+  success "GRUB updated."
 }
 
-# === Customize .bashrc aliases and startup ===
 customize_bashrc() {
-  info "Customizing $bashrc_file..."
-  local aliases=$(cat <<'EOF'
+  info "Updating .bashrc..."
+
+  local lines=$(cat <<'EOF'
 alias up="yay -Syu && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
@@ -187,35 +166,30 @@ EOF
 )
 
   while IFS= read -r line; do
-    if ! grep -Fxq "$line" "$bashrc_file"; then
-      echo "$line" >> "$bashrc_file"
-      success "Added: $line"
-    else
-      info "Already exists: $line"
-    fi
-  done <<< "$aliases"
+    grep -Fxq "$line" "$bashrc_file" || echo "$line" >> "$bashrc_file"
+  done <<< "$lines"
 
   if ! grep -Fxq "pfetch" "$bashrc_file"; then
     sed -i "1i pfetch" "$bashrc_file"
-    success "Added pfetch at the top of $bashrc_file"
-  else
-    info "pfetch already at top of $bashrc_file"
   fi
+
+  success ".bashrc customized."
 }
 
-# === Add env vars ===
 add_env_var() {
   local key="$1" value="$2"
   if grep -q "^${key}=" "$env_file"; then
-    info "$key already set in $env_file."
+    success "$key already set."
   else
-    echo "${key}=\"${value}\"" | sudo tee -a "$env_file" > /dev/null
-    success "Added $key=\"$value\""
+    echo "${key}=\"${value}\"" | sudo tee -a "$env_file" >/dev/null
+    success "Added $key."
   fi
 }
-add_environment_vars() { add_env_var "ELECTRON_OZONE_PLATFORM_HINT" "auto"; }
 
-# === MangoHud config ===
+add_environment_vars() {
+  add_env_var "ELECTRON_OZONE_PLATFORM_HINT" "auto"
+}
+
 setup_mangohud_config() {
   info "Creating MangoHud config..."
   mkdir -p "$HOME/.config/MangoHud"
@@ -270,14 +244,17 @@ network_color=e07b85
 battery_color=92e79a
 media_player_format={title};{artist};{album}
 EOF
-  success "MangoHud config written to $HOME/.config/MangoHud/MangoHud.conf"
+  success "MangoHud config written."
 }
 
-# === Customize alacritty config ===
 customize_alacritty_config() {
-  info "Overwriting $alacritty_config..."
+  info "Writing Alacritty config..."
 
-  sudo tee "$alacritty_config" > /dev/null <<'EOF'
+  # Ensure directory exists
+  mkdir -p "$(dirname "$alacritty_config")"
+
+  # Overwrite config
+  cat > "$alacritty_config" <<'EOF'
 [env]
 TERM = "xterm-256color"
 WINIT_X11_SCALE_FACTOR = "1"
@@ -306,7 +283,7 @@ multiplier = 3
 draw_bold_text_with_bright_colors = true
 
 [colors.primary]
-background = "0x2E3440"
+background = "0x15181e"
 foreground = "0xD8DEE9"
 
 [colors.normal]
@@ -443,51 +420,49 @@ action = "ResetFontSize"
 [general]
 live_config_reload = true
 working_directory = "None"
-
 EOF
 
-  success "Wrote new config to $alacritty_config"
+  success "Alacritty config written to $alacritty_config"
 }
 
-# === Firefox customization ===
 customize_firefox() {
+  info "Customizing Firefox..."
   local firefox_dir="$HOME/.mozilla/firefox"
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  info "Applying Firefox customizations..."
+  local tmp=$(mktemp -d)
 
-  git clone --quiet --depth=1 https://github.com/tyrohellion/arcadia "$tmpdir"
+  quiet git clone --depth=1 https://github.com/tyrohellion/arcadia "$tmp"
 
-  local profile_path
-  profile_path=$(find "$firefox_dir" -maxdepth 1 -type d -name "*default-release" | head -n1)
+  local profile
+  profile=$(find "$firefox_dir" -maxdepth 1 -type d -name "*default-release" | head -n 1)
 
-  if [[ -d "$profile_path" ]]; then
-    cp -r "$tmpdir/chrome" "$profile_path/"
-    cp "$tmpdir/user.js" "$profile_path/"
-    success "Custom Firefox files copied to profile: $profile_path"
+  if [[ -d "$profile" ]]; then
+    quiet cp -r "$tmp/chrome" "$profile/"
+    quiet cp "$tmp/user.js" "$profile/"
+    success "Firefox theme applied."
   else
-    warn "Firefox default-release profile not found, skipping customization."
+    warn "Firefox profile not found. Skipping."
   fi
 
-  rm -rf "$tmpdir"
+  quiet rm -rf "$tmp"
 }
 
-# === Elegant GRUB theme install ===
 install_grub_theme() {
-  local tmpdir
-  tmpdir=$(mktemp -d)
-  info "Installing Elegant GRUB theme..."
+  info "Installing GRUB theme..."
+  local tmp=$(mktemp -d)
 
-  git clone --quiet --depth=1 https://github.com/vinceliuice/Elegant-grub2-themes "$tmpdir"
-  (cd "$tmpdir" && sudo ./install.sh -t forest -p float -i left -c dark -s 1080p -l system)
-  rm -rf "$tmpdir"
-  success "Elegant GRUB theme installed."
+  quiet git clone --depth=1 https://github.com/vinceliuice/Elegant-grub2-themes "$tmp"
+  quiet bash -c "cd $tmp && sudo ./install.sh -t forest -p float -i left -c dark -s 1080p -l system"
+  quiet rm -rf "$tmp"
+
+  success "GRUB theme installed."
 }
 
-# === Main ===
+# ===================== MAIN =====================
+
 main() {
   enable_multilib
   enable_color
+  install_yay
   install_packages
   install_flatpaks
   apply_konsave
@@ -499,6 +474,7 @@ main() {
   customize_alacritty_config
   customize_firefox
   install_grub_theme
-  echo -e "\n${GREEN}All done! Reboot is recommended.${RESET}"
+  success "All done! Reboot recommended."
 }
+
 main
