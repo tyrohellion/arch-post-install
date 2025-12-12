@@ -45,6 +45,7 @@ run_with_spinner() {
 pacman_conf="/etc/pacman.conf"
 grub_conf="/etc/default/grub"
 bashrc_file="$HOME/.bashrc"
+alacritty_config="$HOME/.config/alacritty/alacritty.toml"
 env_file="/etc/environment"
 
 # === Enable multilib repo ===
@@ -87,8 +88,8 @@ makepkg -si
 install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin copyparty
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin nextcloud-client
+    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin nextcloud-client
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin alacritty
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin nextcloud
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
@@ -106,8 +107,16 @@ install_flatpaks() {
     org.gnome.gitlab.YaLTeR.VideoTrimmer
     com.github.unrud.VideoDownloader
     com.github.tenderowl.frog
-    io.gitlab.adhami3310.Footage
     org.gnome.design.Lorem
+    com.authormore.penpotdesktop
+    com.github.taiko2k.avvie
+    com.github.tchx84.Flatseal
+    io.github.flattool.Warehouse
+    io.github.josephmawa.SpellingBee
+    io.github.wartybix.Constrict
+    org.gnome.Decibels
+    org.gnome.design.Lorem
+    io.gitlab.theevilskeleton.Upscaler
   )
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
@@ -164,7 +173,7 @@ set_grub_cmdline() {
 customize_bashrc() {
   info "Customizing $bashrc_file..."
   local aliases=$(cat <<'EOF'
-alias up="yay -Syu && protonup-rs -q && flatpak update"
+alias up="yay -Syu && flatpak update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
 alias firmware-update="sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
@@ -264,6 +273,182 @@ EOF
   success "MangoHud config written to $HOME/.config/MangoHud/MangoHud.conf"
 }
 
+# === Customize alacritty config ===
+customize_alacritty_config() {
+  info "Overwriting $alacritty_config..."
+
+  sudo tee "$alacritty_config" > /dev/null <<'EOF'
+[env]
+TERM = "xterm-256color"
+WINIT_X11_SCALE_FACTOR = "1"
+
+[window]
+padding = { x = 16, y = 8 }
+dynamic_padding = false
+decorations = "full"
+title = "Alacritty@CachyOS"
+opacity = 0.99
+decorations_theme_variant = "Dark"
+
+[window.dimensions]
+columns = 140
+lines = 35
+
+[window.class]
+instance = "Alacritty"
+general = "Alacritty"
+
+[scrolling]
+history = 10000
+multiplier = 3
+
+[colors]
+draw_bold_text_with_bright_colors = true
+
+[colors.primary]
+background = "0x2E3440"
+foreground = "0xD8DEE9"
+
+[colors.normal]
+black = "0x3B4252"
+red = "0xBF616A"
+green = "0xA3BE8C"
+yellow = "0xEBCB8B"
+blue = "0x81A1C1"
+magenta = "0xB48EAD"
+cyan = "0x88C0D0"
+white = "0xE5E9F0"
+
+[colors.bright]
+black = "0x4C566A"
+red = "0xBF616A"
+green = "0xA3BE8C"
+yellow = "0xEBCB8B"
+blue = "0x81A1C1"
+magenta = "0xB48EAD"
+cyan = "0x8FBCBB"
+white = "0xECEFF4"
+
+[font]
+size = 12
+
+[font.normal]
+family = "JetBrainsMono Nerd Font"
+style = "Regular"
+
+[font.bold]
+family = "JetBrainsMono Nerd Font"
+style = "Bold"
+
+[font.italic]
+family = "JetBrainsMono Nerd Font"
+style = "Italic"
+
+[font.bold_italic]
+family = "JetBrainsMono Nerd Font"
+style = "Bold Italic"
+
+[selection]
+semantic_escape_chars = ",│`|:\"' ()[]{}<>\t"
+save_to_clipboard = true
+
+[cursor]
+style = "Underline"
+vi_mode_style = "None"
+unfocused_hollow = true
+thickness = 0.15
+
+[mouse]
+hide_when_typing = true
+
+[[mouse.bindings]]
+mouse = "Middle"
+action = "PasteSelection"
+
+[keyboard]
+[[keyboard.bindings]]
+key = "Paste"
+action = "Paste"
+
+[[keyboard.bindings]]
+key = "Copy"
+action = "Copy"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Control"
+action = "ClearLogNotice"
+
+[[keyboard.bindings]]
+key = "L"
+mods = "Control"
+mode = "~Vi"
+chars = "\f"
+
+[[keyboard.bindings]]
+key = "PageUp"
+mods = "Shift"
+mode = "~Alt"
+action = "ScrollPageUp"
+
+[[keyboard.bindings]]
+key = "PageDown"
+mods = "Shift"
+mode = "~Alt"
+action = "ScrollPageDown"
+
+[[keyboard.bindings]]
+key = "Home"
+mods = "Shift"
+mode = "~Alt"
+action = "ScrollToTop"
+
+[[keyboard.bindings]]
+key = "End"
+mods = "Shift"
+mode = "~Alt"
+action = "ScrollToBottom"
+
+[[keyboard.bindings]]
+key = "V"
+mods = "Control|Shift"
+action = "Paste"
+
+[[keyboard.bindings]]
+key = "C"
+mods = "Control|Shift"
+action = "Copy"
+
+[[keyboard.bindings]]
+key = "F"
+mods = "Control|Shift"
+action = "SearchForward"
+
+[[keyboard.bindings]]
+key = "B"
+mods = "Control|Shift"
+action = "SearchBackward"
+
+[[keyboard.bindings]]
+key = "C"
+mods = "Control|Shift"
+mode = "Vi"
+action = "ClearSelection"
+
+[[keyboard.bindings]]
+key = "Key0"
+mods = "Control"
+action = "ResetFontSize"
+
+[general]
+live_config_reload = true
+working_directory = "None"
+
+EOF
+
+  success "Wrote new config to $alacritty_config"
+}
+
 # === Firefox customization ===
 customize_firefox() {
   local firefox_dir="$HOME/.mozilla/firefox"
@@ -311,6 +496,7 @@ main() {
   customize_bashrc
   add_environment_vars
   setup_mangohud_config
+  customize_alacritty_config
   customize_firefox
   install_grub_theme
   echo -e "\n${GREEN}All done! Reboot is recommended.${RESET}"
