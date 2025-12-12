@@ -84,8 +84,8 @@ sudo pacman -Syu yay --needed --noconfirm
 # === Install packages ===
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
-    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin copyparty
+    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin 
+    pfetch fastfetch kvantum dunst protonup-rs mangojuice ffmpeg localsend-bin spotify figma-linux-bin discord
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser vscodium-bin nextcloud
     os-prober firefox kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin tailscale nextcloud-client
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
@@ -106,7 +106,6 @@ install_flatpaks() {
     com.github.tenderowl.frog
     org.gnome.design.Lorem
     com.authormore.penpotdesktop
-    com.discordapp.Discord
     com.github.taiko2k.avvie
     com.github.tchx84.Flatseal
     io.github.flattool.Warehouse
