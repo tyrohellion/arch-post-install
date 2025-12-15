@@ -451,7 +451,7 @@ install_grub_theme() {
   local tmp=$(mktemp -d)
 
   quiet git clone --depth=1 https://github.com/vinceliuice/Elegant-grub2-themes "$tmp"
-  quiet bash -c "cd $tmp && sudo ./install.sh -t forest -p float -i left -c dark -s 1080p -l system"
+  quiet bash -c "cd $tmp && sudo ./install.sh -t forest -p float -i left -c dark -s 2k -l system"
   quiet rm -rf "$tmp"
 
   success "GRUB theme installed."
