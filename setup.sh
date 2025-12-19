@@ -73,7 +73,7 @@ install_yay() {
 install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
-    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty
+    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty ttf-noto-sans-cjk-vf
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed fresh-editor
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
