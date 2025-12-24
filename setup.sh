@@ -56,6 +56,29 @@ enable_color() {
   fi
 }
 
+enable_makepkg_no_debug() {
+  local makepkg_conf="/etc/makepkg.conf"
+
+  # Check if !debug is already enabled
+  if grep -Eq '^[[:space:]]*OPTIONS=.*!debug' "$makepkg_conf"; then
+    success "makepkg debug already disabled."
+    return
+  fi
+
+  # Check if debug exists (without !) in OPTIONS
+  if grep -Eq '^[[:space:]]*OPTIONS=.*\bdebug\b' "$makepkg_conf"; then
+    info "Disabling makepkg debug option..."
+
+    quiet sudo sed -i \
+      's/^\([[:space:]]*OPTIONS=.*\)\bdebug\b/\1!debug/' \
+      "$makepkg_conf"
+
+    success "makepkg debug option disabled."
+  else
+    success "makepkg debug option not present; nothing to change."
+  fi
+}
+
 install_yay() {
   if command -v yay >/dev/null; then
     success "yay already installed."
@@ -72,11 +95,11 @@ install_yay() {
 
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
+    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin helium-browser-bin
     pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty ttf-noto-sans-cjk-vf
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed fresh-editor
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop syncthing
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware
-    bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin
+    bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin vicinae-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
   info "Installing packages..."
@@ -103,7 +126,6 @@ install_flatpaks() {
     org.gnome.Decibels
     org.gnome.design.Lorem
     io.gitlab.theevilskeleton.Upscaler
-    com.nextcloud.desktopclient.nextcloud
   )
 
   info "Installing Flatpaks..."
@@ -465,6 +487,7 @@ install_grub_theme() {
 main() {
   enable_multilib
   enable_color
+  enable_makepkg_no_debug
   install_yay
   install_packages
   install_flatpaks
@@ -472,7 +495,7 @@ main() {
   enable_os_prober
   set_grub_cmdline
   customize_bashrc
-  add_environment_vars
+  #add_environment_vars
   setup_mangohud_config
   customize_alacritty_config
   customize_firefox
