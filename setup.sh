@@ -59,13 +59,11 @@ enable_color() {
 enable_makepkg_no_debug() {
   local makepkg_conf="/etc/makepkg.conf"
 
-  # Check if !debug is already enabled
   if grep -Eq '^[[:space:]]*OPTIONS=.*!debug' "$makepkg_conf"; then
     success "makepkg debug already disabled."
     return
   fi
 
-  # Check if debug exists (without !) in OPTIONS
   if grep -Eq '^[[:space:]]*OPTIONS=.*\bdebug\b' "$makepkg_conf"; then
     info "Disabling makepkg debug option..."
 
@@ -288,7 +286,7 @@ WINIT_X11_SCALE_FACTOR = "1"
 padding = { x = 16, y = 8 }
 dynamic_padding = false
 decorations = "full"
-title = "Alacritty@CachyOS"
+title = "alacritty"
 opacity = 0.99
 decorations_theme_variant = "Dark"
 
