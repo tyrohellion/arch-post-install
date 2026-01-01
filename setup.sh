@@ -96,7 +96,7 @@ install_packages() {
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin helium-browser-bin
     pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty ttf-noto-sans-cjk-vf
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop syncthing
-    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware
+    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware ffmpegthumbs
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin vicinae-bin
     gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
@@ -108,7 +108,6 @@ install_packages() {
 install_flatpaks() {
   local flatpaks=(
     com.dec05eba.gpu_screen_recorder
-    io.github.celluloid_player.Celluloid
     io.gitlab.adhami3310.Converter
     io.github.nokse22.asciidraw
     org.gnome.gitlab.YaLTeR.VideoTrimmer
@@ -124,6 +123,7 @@ install_flatpaks() {
     org.gnome.Decibels
     org.gnome.design.Lorem
     io.gitlab.theevilskeleton.Upscaler
+    org.kde.haruna
   )
 
   info "Installing Flatpaks..."
