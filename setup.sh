@@ -94,11 +94,11 @@ install_yay() {
 install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin helium-browser-bin
-    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty ttf-noto-sans-cjk-vf
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop syncthing
+    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty ttf-noto-sans-cjk-vf systemdgenie
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop syncthing kexi
     os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware ffmpegthumbs
     bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin vicinae-bin
-    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
+    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator kjournald
   )
   info "Installing packages..."
   quiet yay -Syu --needed --noconfirm "${packages[@]}"
@@ -163,7 +163,7 @@ enable_os_prober() {
 
 set_grub_cmdline() {
   info "Updating GRUB kernel parameters..."
-  quiet sudo sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 splash loglevel=3 usbhid.jspoll=1 xpad.cpoll=1'|" "$grub_conf"
+  quiet sudo sed -i "s|^GRUB_CMDLINE_LINUX_DEFAULT=.*|GRUB_CMDLINE_LINUX_DEFAULT='nowatchdog nvme_load=YES zswap.enabled=0 splash quiet loglevel=3 usbhid.mousepoll=1 xpad.poll_interval=1'|" "$grub_conf"
   quiet sudo grub-mkconfig -o /boot/grub/grub.cfg
   success "GRUB updated."
 }
