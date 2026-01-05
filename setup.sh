@@ -215,9 +215,8 @@ setup_mangohud_config() {
   mkdir -p "$HOME/.config/MangoHud"
   cat > "$HOME/.config/MangoHud/MangoHud.conf" <<'EOF'
   legacy_layout=false
-  #horizontal
+  horizontal
   horizontal_stretch=0
-  horizontal_separator_color=0
   blacklist=protonplus,lsfg-vk-ui,bazzar,gnome-calculator,pamac-manager,lact,ghb,bitwig-studio,ptyxis,yumex
   gpu_stats
   gpu_load_change
@@ -227,7 +226,7 @@ setup_mangohud_config() {
   fps_color_change
   fps_metrics=avg,0.01
   wine
-  frame_timing
+  #frame_timing
   round_corners=4
   resolution
   display_server
@@ -493,6 +492,7 @@ main() {
   enable_os_prober
   set_grub_cmdline
   customize_bashrc
+  #disabled because I don't have any env variables in use at the moment
   #add_environment_vars
   setup_mangohud_config
   customize_alacritty_config
