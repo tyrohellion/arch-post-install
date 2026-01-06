@@ -94,11 +94,11 @@ install_yay() {
 install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin helium-browser-bin
-    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin spotify figma-linux-bin alacritty ttf-noto-sans-cjk-vf systemdgenie
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop syncthing kexi
-    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware ffmpegthumbs
-    bottles xorg-xlsclients papirus-icon-theme plasma6-themes-chromeos-kde-git kwrited r2modman zen-browser-bin vicinae-bin
-    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator kjournald
+    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop kexi kjournald
+    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware
+    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin vicinae-bin ffmpegthumbs openssh systemdgenie
+    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
   )
   info "Installing packages..."
   quiet yay -Syu --needed --noconfirm "${packages[@]}"
@@ -124,6 +124,7 @@ install_flatpaks() {
     org.gnome.design.Lorem
     io.gitlab.theevilskeleton.Upscaler
     org.kde.haruna
+    com.nextcloud.desktopclient.nextcloud
   )
 
   info "Installing Flatpaks..."
