@@ -84,7 +84,7 @@ install_yay() {
   fi
 
   info "Installing yay..."
-  quiet sudo pacman -Syu --needed git base-devel
+  quiet sudo pacman -Syu --needed --noconfirm git base-devel
   quiet git clone https://aur.archlinux.org/yay-bin.git
   quiet bash -c "cd yay-bin && makepkg -si --noconfirm"
   quiet rm -rf yay-bin
