@@ -378,6 +378,30 @@ set_kernel_cmdline() {
   success "Kernel parameters updated."
 }
 
+set_ntsync_autoload() {
+  info "Checking NTSYNC auto-load configuration..."
+
+  local module_name="ntsync"
+  local config_file="/etc/modules-load.d/${module_name}.conf"
+
+  if [[ -f "$config_file" ]] && grep -qX "$module_name" "$config_file"; then
+    success "NTSYNC is already configured for auto-load."
+    return 0
+  fi
+
+  info "Configuring NTSYNC to load at boot..."
+  quiet sudo mkdir -p /etc/modules-load.d
+
+  echo "$module_name" | sudo tee "$config_file" > /dev/null
+
+  if ! lsmod | grep -q "$module_name"; then
+    info "Loading module for current session..."
+    quiet sudo modprobe "$module_name"
+  fi
+
+  success "NTSYNC auto-load enabled."
+}
+
 customize_firefox() {
   info "Customizing Firefox..."
   local firefox_dir="$HOME/.mozilla/firefox"
@@ -406,6 +430,7 @@ main() {
   setup_mangohud_config
   customize_alacritty_config
   set_kernel_cmdline
+  set_ntsync_autoload
   customize_firefox
   success "All done! Reboot recommended."
 }
