@@ -1,18 +1,19 @@
 ## Installation
 
-1. `git clone https://github.com/tyrohellion/arch-post-install`
-2. `cd arch-post-install`
-3. `sudo chmod +x ./setup.sh`
-4. `./setup.sh`
+1. `git clone https://github.com/tyrohellion/distro-post-install`
+2. `cd distro-post-install`
+3. `cd <Arch or Solus>`
+4. `sudo chmod +x ./setup.sh`
+5. `./setup.sh`
 
 ## Why?
 
-To automate my personal Arch Linux install whenever I need to
+To automate my personal Arch Linux or Solus install whenever I need to
 
 ## Summary of changes
 
 1. Enables multilib and Color in /etc/pacman.conf
-4. Installs yay and flatpak packages
+4. Handles all packages, Flatpak and System
 5. Applies my personal konsave profile
 6. Enables os-prober and kernel parameters
 7. Applies my .bashrc configs and configures starship
