@@ -1,13 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# Prevent running as root
 if [ "$EUID" -eq 0 ]; then
     echo -e "\033[0;31m✘ Please do NOT run setup.sh with sudo — run it as your normal user.\033[0m"
     exit 1
 fi
 
-# ===================== COLORS =====================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,14 +17,10 @@ success() { echo -e "${GREEN}✔ $*${RESET}"; }
 warn()    { echo -e "${YELLOW}⚠ $*${RESET}"; }
 error()   { echo -e "${RED}✘ $*${RESET}"; }
 
-# ===================== QUIET EXEC WRAPPER =====================
 quiet() { "$@" >/dev/null 2>&1; }
 
-# ===================== PATHS =====================
 bashrc_file="$HOME/.bashrc"
 alacritty_config="$HOME/.config/alacritty/alacritty.toml"
-
-# ===================== FUNCTIONS =====================
 
 install_packages() {
   local packages=(
@@ -172,10 +166,8 @@ EOF
 customize_alacritty_config() {
   info "Writing Alacritty config..."
 
-  # Ensure directory exists
   mkdir -p "$(dirname "$alacritty_config")"
 
-  # Overwrite config
   cat > "$alacritty_config" <<'EOF'
 [env]
 TERM = "xterm-256color"
@@ -353,17 +345,14 @@ set_kernel_cmdline() {
   local cmdline_file="/etc/kernel/cmdline.d/kernel_params.conf"
   local desired_params="nvme_load=YES usbhid.mousepoll=1 xpad.poll_interval=1"
 
-  # Read existing parameters (if file exists)
   local current_params=""
   if [[ -f "$cmdline_file" ]]; then
     current_params="$(tr -s ' ' '\n' < "$cmdline_file" | sort)"
   fi
 
-  # Normalize desired parameters for comparison
   local desired_sorted
   desired_sorted="$(tr -s ' ' '\n' <<< "$desired_params" | sort)"
 
-  # Compare
   if [[ "$current_params" == "$desired_sorted" ]]; then
     success "Kernel parameters already set. No changes needed."
     return 0
@@ -422,8 +411,6 @@ customize_firefox() {
 
   quiet rm -rf "$tmp"
 }
-
-# ===================== MAIN =====================
 
 main() {
   apply_konsave
