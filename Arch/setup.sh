@@ -93,12 +93,12 @@ install_yay() {
 
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin helium-browser-bin
-    pfetch fastfetch kvantum dunst mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop kexi kjournald
-    os-prober starship firefox kdenlive gimp krita gwenview discord xdg-desktop-portal-kde brave-bin gnome-firmware
-    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin vicinae-bin ffmpegthumbs openssh systemdgenie
-    gamepadla-polling chromeos-gtk-theme-git konsave mangohud flatpak lmstudio proton-ge-custom-bin gnome-calculator
+    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
+    pfetch fastfetch mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf helium-browser-bin
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop kexi
+    os-prober starship firefox kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald
+    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin vicinae-bin ffmpegthumbs openssh
+    gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd
   )
   info "Installing packages..."
   quiet yay -Syu --needed --noconfirm "${packages[@]}"
@@ -108,6 +108,7 @@ install_packages() {
 install_flatpaks() {
   local flatpaks=(
     com.dec05eba.gpu_screen_recorder
+    com.discordapp.Discord
     io.gitlab.adhami3310.Converter
     io.github.nokse22.asciidraw
     org.gnome.gitlab.YaLTeR.VideoTrimmer
@@ -173,7 +174,7 @@ customize_bashrc() {
   info "Updating .bashrc..."
 
   local lines=$(cat <<'EOF'
-alias up="yay -Syu && flatpak update"
+alias up="yay -Syu && flatpak update && sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
 alias firmware-update="sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
@@ -474,7 +475,7 @@ install_grub_theme() {
   local tmp=$(mktemp -d)
 
   quiet git clone --depth=1 https://github.com/vinceliuice/Elegant-grub2-themes "$tmp"
-  quiet bash -c "cd $tmp && sudo ./install.sh -t forest -p float -i left -c dark -s 2k -l system"
+  quiet bash -c "cd $tmp && sudo ./install.sh -t forest -i left -c dark -s 2k -l system"
   quiet rm -rf "$tmp"
 
   success "GRUB theme installed."
