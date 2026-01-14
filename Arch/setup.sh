@@ -126,19 +126,18 @@ install_flatpaks() {
     io.gitlab.theevilskeleton.Upscaler
     org.kde.haruna
     com.nextcloud.desktopclient.nextcloud
-    com.hypixel.HytaleLauncher
   )
 
   info "Installing Flatpaks..."
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
-    quiet flatpak remote-add --if-not-exists flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+    quiet flatpak remote-add --if-not-exists --system flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
   fi
 
-  quiet flatpak install -y --noninteractive flathub "${flatpaks[@]}"
+  quiet flatpak install -y --noninteractive --system flathub "${flatpaks[@]}"
 
   if ! flatpak list --app | grep -q "^com.stremio.Stremio"; then
-    quiet flatpak install -y flathub-beta com.stremio.Stremio
+    quiet flatpak install -y flathub-beta --system com.stremio.Stremio
   fi
 
   success "Flatpaks installed."
