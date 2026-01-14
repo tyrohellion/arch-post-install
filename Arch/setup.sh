@@ -96,8 +96,8 @@ install_packages() {
     base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
     pfetch fastfetch mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf helium-browser-bin
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop kexi
-    os-prober starship firefox kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald
-    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin vicinae-bin ffmpegthumbs openssh
+    os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald
+    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin ffmpegthumbs openssh
     gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd
   )
   info "Installing packages..."
@@ -126,6 +126,7 @@ install_flatpaks() {
     io.gitlab.theevilskeleton.Upscaler
     org.kde.haruna
     com.nextcloud.desktopclient.nextcloud
+    com.hypixel.HytaleLauncher
   )
 
   info "Installing Flatpaks..."
@@ -476,7 +477,7 @@ install_grub_theme() {
   local tmp=$(mktemp -d)
 
   quiet git clone --depth=1 https://github.com/vinceliuice/Elegant-grub2-themes "$tmp"
-  quiet bash -c "cd $tmp && sudo ./install.sh -t forest -i left -c dark -s 2k -l system"
+  quiet bash -c "cd $tmp && sudo ./install.sh -t mojave -p float -i left -c dark -s 2k -l system"
   quiet rm -rf "$tmp"
 
   success "GRUB theme installed."
@@ -495,11 +496,10 @@ main() {
   enable_os_prober
   set_grub_cmdline
   customize_bashrc
-  #disabled because I don't have any env variables in use at the moment
-  #add_environment_vars
+  #add_environment_vars ---- disabled because I don't have any env variables in use at the moment
   setup_mangohud_config
   customize_alacritty_config
-  customize_firefox
+  #customize_firefox ---- disabled until new firefox xdg spec is implemented in function
   install_grub_theme
   success "All done! Reboot recommended."
 }
