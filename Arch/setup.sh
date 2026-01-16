@@ -93,11 +93,11 @@ install_yay() {
 
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus okular linux-zen heroic-games-launcher-bin onlyoffice-bin
+    base-devel steam modrinth-app-bin protonplus linux-zen heroic-games-launcher-bin onlyoffice-bin
     pfetch fastfetch mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf helium-browser-bin
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop kexi
-    os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald
-    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin ffmpegthumbs openssh
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop
+    os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald kexi
+    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin ffmpegthumbs openssh okular
     gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd
   )
   info "Installing packages..."
