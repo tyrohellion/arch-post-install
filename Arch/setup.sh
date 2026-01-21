@@ -97,7 +97,7 @@ install_packages() {
     pfetch fastfetch mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf helium-browser-bin
     ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop
     os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald kexi
-    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin ffmpegthumbs openssh okular
+    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin ffmpegthumbs openssh okular drawy-git
     gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd
   )
   info "Installing packages..."
