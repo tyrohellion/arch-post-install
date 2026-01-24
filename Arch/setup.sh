@@ -84,10 +84,10 @@ install_yay() {
   fi
 
   info "Installing yay..."
-  quiet sudo pacman -Syu --needed --noconfirm git base-devel
-  quiet git clone https://aur.archlinux.org/yay-bin.git
-  quiet bash -c "cd yay-bin && makepkg -si --noconfirm"
-  quiet rm -rf yay-bin
+  sudo pacman -Syu --needed --noconfirm git base-devel
+  git clone https://aur.archlinux.org/yay-bin.git
+  bash -c "cd yay-bin && makepkg -si --noconfirm"
+  rm -rf yay-bin
   success "yay installed."
 }
 
@@ -95,13 +95,13 @@ install_packages() {
   local packages=(
     base-devel steam modrinth-app-bin protonplus linux-zen heroic-games-launcher-bin onlyoffice-bin
     pfetch fastfetch mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf helium-browser-bin
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser zed jellyfin-desktop
-    os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald kexi
-    bottles xorg-xlsclients papirus-icon-theme r2modman zen-browser-bin ffmpegthumbs openssh okular drawy-git
-    gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd
+    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser jellyfin-desktop
+    os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald kexi vscodium-bin
+    bottles xorg-xlsclients papirus-icon-theme zen-browser-bin ffmpegthumbs openssh okular drawy-git r2modman-bin
+    gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd fetchmirrors
   )
   info "Installing packages..."
-  quiet yay -Syu --needed --noconfirm "${packages[@]}"
+  yay -Syu --needed --noconfirm "${packages[@]}"
   success "Packages installed."
 }
 
@@ -131,13 +131,13 @@ install_flatpaks() {
   info "Installing Flatpaks..."
 
   if ! flatpak remote-list | grep -q "^flathub-beta"; then
-    quiet flatpak remote-add --if-not-exists --system flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
+    flatpak remote-add --if-not-exists --system flathub-beta https://flathub.org/beta-repo/flathub-beta.flatpakrepo
   fi
 
-  quiet flatpak install -y --noninteractive --system flathub "${flatpaks[@]}"
+  flatpak install -y --noninteractive --system flathub "${flatpaks[@]}"
 
   if ! flatpak list --app | grep -q "^com.stremio.Stremio"; then
-    quiet flatpak install -y flathub-beta --system com.stremio.Stremio
+    flatpak install -y flathub-beta --system com.stremio.Stremio
   fi
 
   success "Flatpaks installed."
@@ -174,12 +174,12 @@ customize_bashrc() {
   info "Updating .bashrc..."
 
   local lines=$(cat <<'EOF'
-alias up="yay -Syu && flatpak update && sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
+alias up="yay -Syu && flatpak update && sudo grub-mkconfig -o /boot/grub/grub.cfg && sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
+alias rank-mirrors="fetchmirrors -c US --noconfirm"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
-alias firmware-update="sudo fwupdmgr refresh && sudo fwupdmgr get-updates && sudo fwupdmgr update"
+alias firmware-update="sudo fwupdmgr refresh --force && sudo fwupdmgr get-updates && sudo fwupdmgr update"
 alias polling="gamepadla-polling"
-alias zed="zeditor"
 alias tailstart="sudo systemctl start tailscaled"
 alias rl-launch="echo BAKKES=1 PROMPTLESS=1 PROTON_ENABLE_WAYLAND=1 mangohud %command%"
 alias yay-recent="grep -i installed /var/log/pacman.log | tail -n 200"
@@ -499,7 +499,7 @@ main() {
   setup_mangohud_config
   customize_alacritty_config
   #customize_firefox ---- disabled until new firefox xdg spec is implemented in function
-  install_grub_theme
+  #install_grub_theme
   success "All done! Reboot recommended."
 }
 
