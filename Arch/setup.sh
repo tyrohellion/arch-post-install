@@ -1,13 +1,11 @@
 #!/bin/bash
 set -euo pipefail
 
-# Prevent running as root
 if [ "$EUID" -eq 0 ]; then
     echo -e "\033[0;31m✘ Please do NOT run setup.sh with sudo — run it as your normal user.\033[0m"
     exit 1
 fi
 
-# ===================== COLORS =====================
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -19,17 +17,13 @@ success() { echo -e "${GREEN}✔ $*${RESET}"; }
 warn()    { echo -e "${YELLOW}⚠ $*${RESET}"; }
 error()   { echo -e "${RED}✘ $*${RESET}"; }
 
-# ===================== QUIET EXEC WRAPPER =====================
 quiet() { "$@" >/dev/null 2>&1; }
 
-# ===================== PATHS =====================
 pacman_conf="/etc/pacman.conf"
 grub_conf="/etc/default/grub"
 bashrc_file="$HOME/.bashrc"
 alacritty_config="$HOME/.config/alacritty/alacritty.toml"
 env_file="/etc/environment"
-
-# ===================== FUNCTIONS =====================
 
 enable_multilib() {
   if grep -Eq '^[[:space:]]*\[multilib\]' "$pacman_conf"; then
@@ -93,12 +87,36 @@ install_yay() {
 
 install_packages() {
   local packages=(
-    base-devel steam modrinth-app-bin protonplus linux-zen heroic-games-launcher-bin onlyoffice-bin
-    pfetch fastfetch mangojuice ffmpeg localsend-bin figma-linux-bin alacritty ttf-noto-sans-cjk-vf helium-browser-bin
-    ttf-jetbrains-mono-nerd inter-font github-desktop-bin inkscape bazaar kcolorchooser jellyfin-desktop
-    os-prober starship kdenlive gimp krita gwenview xdg-desktop-portal-kde brave-bin kjournald kexi vscodium-bin
-    bottles xorg-xlsclients papirus-icon-theme zen-browser-bin ffmpegthumbs openssh okular drawy-git r2modman-bin
-    gamepadla-polling konsave mangohud flatpak proton-ge-custom-bin gnome-calculator systemdgenie fwupd fetchmirrors
+    base-devel
+    steam
+    linux-zen
+    helium-browser-bin
+    pfetch
+    fastfetch
+    ffmpeg
+    alacritty
+    ttf-noto-sans-cjk-vf
+    ttf-jetbrains-mono-nerd
+    inter-font
+    github-desktop-bin
+    os-prober
+    starship
+    xdg-desktop-portal-kde
+    kjournald
+    kexi
+    fetchmirrors
+    xorg-xlsclients
+    papirus-icon-theme
+    ffmpegthumbs
+    openssh
+    drawy-git
+    r2modman-bin
+    gamepadla-polling
+    konsave
+    mangohud
+    flatpak
+    proton-ge-custom-bin
+    fwupd
   )
   info "Installing packages..."
   yay -Syu --needed --noconfirm "${packages[@]}"
@@ -107,6 +125,7 @@ install_packages() {
 
 install_flatpaks() {
   local flatpaks=(
+    io.github.kolunmi.Bazaar
     com.dec05eba.gpu_screen_recorder
     com.discordapp.Discord
     io.gitlab.adhami3310.Converter
@@ -125,7 +144,25 @@ install_flatpaks() {
     org.gnome.design.Lorem
     io.gitlab.theevilskeleton.Upscaler
     org.kde.haruna
+    org.gnome.Calculator
     com.nextcloud.desktopclient.nextcloud
+    com.spotify.Client
+    com.heroicgameslauncher.hgl
+    org.onlyoffice.desktopeditors
+    com.modrinth.ModrinthApp
+    app.zen_browser.zen
+    com.brave.Browser
+    com.vscodium.codium
+    com.vysp3r.ProtonPlus
+    org.localsend.localsend_app
+    org.kde.kcolorchooser
+    org.kde.kdenlive
+    org.gimp.GIMP
+    org.kde.krita
+    org.kde.gwenview
+    org.kde.okular
+    com.usebottles.bottles
+    io.github.plrigaux.sysd-manager
   )
 
   info "Installing Flatpaks..."
@@ -178,6 +215,7 @@ alias up="yay -Syu && flatpak update && sudo grub-mkconfig -o /boot/grub/grub.cf
 alias rank-mirrors="fetchmirrors -c US --noconfirm"
 alias update-grub="sudo grub-mkconfig -o /boot/grub/grub.cfg"
 alias xwayland-list="xlsclients -l"
+alias systemctl-list="systemctl list-unit-files --type=service --state=disabled"
 alias firmware-update="sudo fwupdmgr refresh --force && sudo fwupdmgr get-updates && sudo fwupdmgr update"
 alias polling="gamepadla-polling"
 alias tailstart="sudo systemctl start tailscaled"
@@ -274,11 +312,7 @@ EOF
 
 customize_alacritty_config() {
   info "Writing Alacritty config..."
-
-  # Ensure directory exists
   mkdir -p "$(dirname "$alacritty_config")"
-
-  # Overwrite config
   cat > "$alacritty_config" <<'EOF'
 [env]
 TERM = "xterm-256color"
@@ -452,7 +486,7 @@ EOF
 
 customize_firefox() {
   info "Customizing Firefox..."
-  local firefox_dir="$HOME/.mozilla/firefox"
+  local firefox_dir="$HOME/.config/mozilla/firefox"
   local tmp=$(mktemp -d)
 
   quiet git clone --depth=1 https://github.com/tyrohellion/arcadia "$tmp"
@@ -498,7 +532,7 @@ main() {
   #add_environment_vars ---- disabled because I don't have any env variables in use at the moment
   setup_mangohud_config
   customize_alacritty_config
-  #customize_firefox ---- disabled until new firefox xdg spec is implemented in function
+  customize_firefox
   #install_grub_theme
   success "All done! Reboot recommended."
 }

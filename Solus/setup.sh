@@ -25,24 +25,14 @@ alacritty_config="$HOME/.config/alacritty/alacritty.toml"
 install_packages() {
   local packages=(
     steam
-    heroic-games-launcher
     pipx
     fastfetch
-    localsend
     font-inter-ttf
     font-jetbrainsmono-ttf
-    gnome-calculator
-    kcolorchooser
-    zed
-    kdenlive
-    gimp
-    brave
     papirus-icon-theme
     r2modman
     mangohud
     alacritty
-    nextcloud-client
-    prism-launcher
   )
   info "Installing packages..."
   quiet sudo eopkg it --yes-all "${packages[@]}"
@@ -51,7 +41,9 @@ install_packages() {
 
 install_flatpaks() {
   local flatpaks=(
+    io.github.kolunmi.Bazaar
     com.dec05eba.gpu_screen_recorder
+    com.discordapp.Discord
     io.gitlab.adhami3310.Converter
     io.github.nokse22.asciidraw
     org.gnome.gitlab.YaLTeR.VideoTrimmer
@@ -65,12 +57,28 @@ install_flatpaks() {
     io.github.josephmawa.SpellingBee
     io.github.wartybix.Constrict
     org.gnome.Decibels
+    org.gnome.design.Lorem
     io.gitlab.theevilskeleton.Upscaler
+    org.kde.haruna
+    org.gnome.Calculator
+    com.nextcloud.desktopclient.nextcloud
+    com.spotify.Client
+    com.heroicgameslauncher.hgl
     org.onlyoffice.desktopeditors
-    com.vysp3r.ProtonPlus
-    com.ranfdev.DistroShelf
-    com.discordapp.Discord
+    com.modrinth.ModrinthApp
     app.zen_browser.zen
+    com.brave.Browser
+    com.vscodium.codium
+    com.vysp3r.ProtonPlus
+    org.localsend.localsend_app
+    org.kde.kcolorchooser
+    org.kde.kdenlive
+    org.gimp.GIMP
+    org.kde.krita
+    org.kde.gwenview
+    org.kde.okular
+    com.usebottles.bottles
+    io.github.plrigaux.sysd-manager
   )
 
   info "Installing Flatpaks..."
