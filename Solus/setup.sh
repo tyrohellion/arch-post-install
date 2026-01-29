@@ -401,7 +401,7 @@ set_ntsync_autoload() {
 
 customize_firefox() {
   info "Customizing Firefox..."
-  local firefox_dir="$HOME/.mozilla/firefox"
+  local firefox_dir="$HOME/.config/mozilla/firefox"
   local tmp=$(mktemp -d)
 
   quiet git clone --depth=1 https://github.com/tyrohellion/arcadia "$tmp"

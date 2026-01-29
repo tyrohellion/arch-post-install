@@ -109,6 +109,7 @@ install_packages() {
     papirus-icon-theme
     ffmpegthumbs
     openssh
+    firefox
     drawy-git
     r2modman-bin
     gamepadla-polling
